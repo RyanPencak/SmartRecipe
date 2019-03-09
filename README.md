@@ -1,3 +1,13 @@
+Initialization
+-------------------------------------------------------------------------------------
+
+[See React Native Getting Started] (https://facebook.github.io/react-native/docs/getting-started.html)
+
+* Install Xcode or Android Studio
+* Install Xcode command line tools
+    * Open Xcode, preferences, Locations panel, Choose most recent "Command Line Tools"
+
+
 Required Packages
 -------------------------------------------------------------------------------------
 
