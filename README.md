@@ -1,7 +1,7 @@
 Initialization
 -------------------------------------------------------------------------------------
 
-[See React Native Getting Started] (https://facebook.github.io/react-native/docs/getting-started.html)
+[See React Native Getting Started](https://facebook.github.io/react-native/docs/getting-started.html)
 
 * Install Xcode or Android Studio
 * Install Xcode command line tools
