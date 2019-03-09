@@ -23,3 +23,20 @@ Run Mobile App Locally
 In Linux Terminal:
 1.	npm install
 2.  react-native run-ios
+
+
+System Architecture
+-------------------------------------------------------------------------------------
+
+### Front-End
+
+* src
+    * app.js is the main file handling page navigation and layout
+    * Each component has its own js file, by convention these components are capitalized in the form "Recipes.js"
+    * Temporary data file data.js contains makeshift database for testing
+    * Style sheet is contained in styles.js
+
+
+### Back-End
+
+* server (To Be Developed)
