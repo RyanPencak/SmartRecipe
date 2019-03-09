@@ -7,6 +7,8 @@ Required Packages
 2.	watchman
     * https://facebook.github.io/watchman/
     * With Homebrew, 'brew install watchman'
+3.  react-native
+    * npm install -g react-native-cli
 
 
 Download Web App Source Files
