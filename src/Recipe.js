@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
-import { Icon } from 'react-native-elements'
 import Tts from 'react-native-tts';
 import Dialogflow from "react-native-dialogflow";
 
@@ -60,8 +59,9 @@ export default class Recipe extends Component {
   }
 
   speak(input) {
-    Tts.setDefaultRate(0.52);
-    Tts.setDefaultVoice('com.apple.ttsbundle.Samantha-compact')
+    Tts.setDefaultRate(0.5);
+    Tts.setDefaultPitch(0.9);
+    Tts.setDefaultVoice('com.apple.ttsbundle.Samantha-compact');
     Tts.speak(input);
   }
 
@@ -80,7 +80,7 @@ export default class Recipe extends Component {
         >
           <View style={styles.recipeHome}>
             <TouchableOpacity onPress={() => handleClose()}>
-              <Icon name="close" />
+              <Text>CLOSE</Text>
             </TouchableOpacity>
             <Button title="Dialogflow" onPress={() => {
               let spoke = false;
