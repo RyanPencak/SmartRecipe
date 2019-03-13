@@ -1,6 +1,7 @@
 import React, { Component, PropTypes } from 'react';
 import {
   Animated,
+  Button,
   Image,
   Dimensions,
   StyleSheet,
@@ -8,10 +9,20 @@ import {
   TouchableOpacity,
   View
 } from 'react-native';
+import Tts from 'react-native-tts';
+import Dialogflow from "react-native-dialogflow";
 
 const { width, height } = Dimensions.get('window');
 
 export default class Recipe extends Component {
+
+  constructor(props) {
+        super(props);
+
+        Dialogflow.setConfiguration(
+          "b572c2f657df43098fc73e8ce901e081", Dialogflow.LANG_ENGLISH
+        );
+  }
 
   static propTypes = {
     recipe: PropTypes.object.isRequired,
@@ -47,6 +58,13 @@ export default class Recipe extends Component {
     ).start(() => this.setState({ visible: false }));
   }
 
+  speak(input) {
+    Tts.setDefaultRate(0.5);
+    Tts.setDefaultPitch(0.9);
+    Tts.setDefaultVoice('com.apple.ttsbundle.Samantha-compact');
+    Tts.speak(input);
+  }
+
   render() {
     const { recipe, handleClose } = this.props;
 
@@ -62,8 +80,28 @@ export default class Recipe extends Component {
         >
           <View style={styles.recipeHome}>
             <TouchableOpacity onPress={() => handleClose()}>
-              <Text>Close</Text>
+              <Text>CLOSE</Text>
             </TouchableOpacity>
+            <Button title="Dialogflow" onPress={() => {
+              let spoke = false;
+              Dialogflow.startListening(response=>{
+                console.log(response)
+                if (spoke == false) {
+                  this.speak(response.result.fulfillment["speech"])
+                  spoke = true
+                }
+              }, error=>{
+                  console.log(error);
+              });
+            }} />
+           <Button title="END" onPress={() => {
+             Dialogflow.finishListening();
+           }}
+          />
+          <Button title="COOK" onPress={() => {
+           Dialogflow.requestQuery("Start Cooking.", response=>this.speak(response.result.fulfillment["speech"]), error=>console.log(error));
+              }}
+         />
             <View style={styles.imageContainer}>
               <Image source={{ uri: recipe.pic }} style={styles.image} />
             </View>
