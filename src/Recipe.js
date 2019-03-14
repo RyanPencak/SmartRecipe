@@ -164,6 +164,14 @@ export default class Recipe extends Component {
     });
   }
 
+  handleTimer = (step) => {
+    this.setState({
+      step: step + 1
+    }, () => {
+      this.speak(this.props.recipe.steps[step]);
+    });
+  }
+
   generateCard() {
     return (
       <View style={styles.card}>
@@ -171,6 +179,8 @@ export default class Recipe extends Component {
           title={this.parse('Step %s', this.state.step)}
           pic={this.state.step_images[this.state.step - 1]}
           instruction={this.props.recipe.steps[this.state.step - 1]}
+          step={this.state.step}
+          handleTimer={this.handleTimer}
         />
         <View style={styles.buttonBar}>
           <TouchableOpacity style={styles.startButton} onPress={() => this.pageLeft()}>
