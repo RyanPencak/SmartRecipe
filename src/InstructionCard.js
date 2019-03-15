@@ -46,7 +46,7 @@ export default class InstructionCard extends Component {
             until={this.props.time}
             onFinish={() => this.props.handleTimer(this.props.step)}
             size={35}
-            digitStyle={{backgroundColor: '#BBBBBB'}}
+            digitStyle={{backgroundColor: '#000'}}
             digitTxtStyle={{color: '#FFF'}}
             timeToShow={['M', 'S']}
             timeLabels={{m: 'MM', s: 'SS'}}

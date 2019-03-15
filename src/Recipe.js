@@ -106,7 +106,7 @@ export default class Recipe extends Component {
   }
 
   async _startRecognition(e) {
-    this.speak(this.parse('Lets start cooking %s', this.props.recipe.title));
+    this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0]));
     this.setState({
       recognized: '',
       started: '',
@@ -150,7 +150,7 @@ export default class Recipe extends Component {
     this.setState({
       step: this.state.step + 1
     }, () => {
-      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0]));
+      this._startRecognition();
     });
   }
 
@@ -178,9 +178,23 @@ export default class Recipe extends Component {
     });
   }
 
+  handleCheckNext() {
+    console.log(typeof(this.state.results[0]));
+    if(typeof this.state.results !== 'undefined') {
+      if(this.state.results[0].indexOf("next") !== -1) {
+        this.pageRight();
+        console.log("success");
+      }
+    }
+  }
+
   generateCard() {
     return (
       <View style={styles.card}>
+        {/* {this.handleCheckNext()} */}
+        {/* <View>
+          {this.state.results.map((result, index) => <Text style={styles.transcript}> {this.state.results}</Text>)}
+        </View> */}
         <InstructionCard
           title={this.parse('Step %s', this.state.step)}
           pic={this.state.step_images[this.state.step - 1]}
