@@ -16,10 +16,10 @@ export const recipes = [
       // "Place cast-iron skillet over high heat. Heat until smoking.",
       // "Sprinkle surface of skillet with salt.",
       // "Get your oven mitts ready.",
-      // "Place steaks in skillet. Immediately transfer to the oven.",
-      "Leave steaks in the oven for 4 minutes.",
+      "Place steaks in a cast iron skillet and transfer to the oven.",
+      "Leave steaks in the oven for 4 minutes. Get your oven mitts ready.",
       "Flip the steaks. Leave them in the oven for 4 minutes.",
-      "Remove the skillet from the oven. Let rest for 3 to 5 minutes.",
+      "Remove the skillet from the oven and let rest.",
       "Time to slice the steaks and enjoy."]
   },
   {

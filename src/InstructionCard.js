@@ -18,20 +18,33 @@ export default class InstructionCard extends Component {
     pic: PropTypes.object.isRequired,
     instruction: PropTypes.object.isRequired,
     step: PropTypes.object.isRequired,
+    time: PropTypes.object,
     handleTimer: PropTypes.func.isRequired
   }
+
+  componentWillReceiveProps(nextProps) {
+    if(JSON.stringify(this.props.step) !== JSON.stringify(nextProps.step))
+    {
+      this.props.step = nextProps.step;
+    }
+  }
+
+  shouldComponentUpdate(nextProps){
+    return nextProps.pic != this.props.pic;
+  }
+
   render() {
-    const { title, pic, instruction, step, handleTimer } = this.props;
+    // const { title, pic, instruction, step, time, handleTimer } = this.props;
     return (
-      <View style={styles.container}>
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
+      <View style={styles.container} key={this.props.step}>
+        <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
         {
-          (instruction.includes("minutes") || instruction.includes("seconds"))
+          (this.props.instruction.includes("minute") || this.props.instruction.includes("second"))
           ?
           <CountDown
             style={styles.timer}
-            until={10}
-            onFinish={() => handleTimer(step)}
+            until={this.props.time}
+            onFinish={() => this.props.handleTimer(this.props.step)}
             size={35}
             digitStyle={{backgroundColor: '#BBBBBB'}}
             digitTxtStyle={{color: '#FFF'}}
@@ -39,10 +52,11 @@ export default class InstructionCard extends Component {
             timeLabels={{m: 'MM', s: 'SS'}}
           />
           :
-          <Image source={{ uri: pic }} style={styles.image} />
+          <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
         }
+        {/* <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} /> */}
         <View style={styles.textContainer}>
-          <Text style={styles.step} numberOfLines={1}>{instruction}</Text>
+          <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
         </View>
       </View>
     );
@@ -76,7 +90,12 @@ const styles = StyleSheet.create({
     ...defaultStyles.header2,
     marginTop: 50,
     marginBottom: 50,
+    marginLeft: 10,
+    marginRight: 10,
     flex: 1,
     flexWrap: 'wrap'
   },
+  timer: {
+    marginTop: 50,
+  }
 });

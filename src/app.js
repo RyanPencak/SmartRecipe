@@ -4,6 +4,8 @@ import {
 } from 'react-native';
 import Explore from './Explore';
 
+console.disableYellowBox = true;
+
 const RouteMapper = (route, navigator) => {
   if (route.name === 'explore') {
     return <Explore navigator={navigator} />;

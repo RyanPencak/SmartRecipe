@@ -11,7 +11,6 @@ import {
   FlatList
 } from 'react-native';
 import { defaultStyles } from './styles';
-// import Carousel from 'react-native-snap-carousel';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';
 import Dialogflow from "react-native-dialogflow";
@@ -26,7 +25,14 @@ export default class Recipe extends Component {
 
     this.state = {
       step: 0,
-      step_images: ["https://cdn3.iconfinder.com/data/icons/kitchen-universe-2/140/29_oven-512.png"],
+      step_images: [
+        "https://cdn3.iconfinder.com/data/icons/kitchen-universe-2/140/29_oven-512.png",
+        "https://www.flourishfundamentals.com/wp-content/uploads/2016/11/Icon-Cast-Iron-Pan-300x300.png",
+        "",
+        ".",
+        "https://cdn2.iconfinder.com/data/icons/food-desserts-drinks-and-sweets/512/grillmeat-512.png",
+        "https://upload.wikimedia.org/wikipedia/commons/2/2b/Beef_fillet_steak_with_mushrooms.jpg"
+      ],
       recognized: '',
       started: '',
       results: [],
@@ -180,15 +186,22 @@ export default class Recipe extends Component {
           pic={this.state.step_images[this.state.step - 1]}
           instruction={this.props.recipe.steps[this.state.step - 1]}
           step={this.state.step}
+          time={10}
           handleTimer={this.handleTimer}
         />
         <View style={styles.buttonBar}>
           <TouchableOpacity style={styles.startButton} onPress={() => this.pageLeft()}>
             <Text style={styles.startButtonText}>Previous</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.startButton} onPress={() => this.pageRight()}>
-            <Text style={styles.startButtonText}>Next</Text>
-          </TouchableOpacity>
+          {
+            this.state.step < this.props.recipe.steps.length - 1
+            ?
+            <TouchableOpacity style={styles.startButton} onPress={() => this.pageRight()}>
+              <Text style={styles.startButtonText}>Next</Text>
+            </TouchableOpacity>
+            :
+            null
+          }
         </View>
       </View>
     )
