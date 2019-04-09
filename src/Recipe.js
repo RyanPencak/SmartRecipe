@@ -107,7 +107,10 @@ export default class Recipe extends Component {
 
     console.log(this.state.results)
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("next")){
+      if (this.state.results[0].includes("next")
+            || this.state.results[0].includes("repeat")
+            || this.state.results[0].includes("last")) {
+
         Voice.stop()
         // this.pageRight();
       }
@@ -115,10 +118,21 @@ export default class Recipe extends Component {
   }
 
   onSpeechEnd(e) {
-    console.log("end")
     if (this.state.results[0] !== undefined){
       if (this.state.results[0].includes("next")){
         this.pageRight();
+        Voice.start('en-US');
+      }
+    }
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("repeat")){
+        this.speak(this.props.recipe.steps[this.state.step-1]);
+        Voice.start('en-US');
+      }
+    }
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("last")){
+        this.pageLeft();
         Voice.start('en-US');
       }
     }
