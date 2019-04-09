@@ -29,8 +29,28 @@ export default class InstructionCard extends Component {
     }
   }
 
-  shouldComponentUpdate(nextProps){
-    return nextProps.pic != this.props.pic;
+  // shouldComponentUpdate(nextProps){
+  //   return nextProps.pic != this.props.pic;
+  // }
+
+  getTime(){
+    let total_seconds = 0
+    if (this.props.instruction.includes("minute")) {
+      let min_split = this.props.instruction.split("minute");
+      let minutes = min_split[0]
+      minutes = minutes.split(" ")
+      minutes = minutes[minutes.length - 2]
+      total_seconds = total_seconds + (minutes*60)
+    }
+    if (this.props.instruction.includes("second")) {
+      let sec_split = this.props.instruction.split("second");
+      let seconds = sec_split[0]
+      seconds = seconds.split(" ")
+      seconds = seconds[seconds.length - 2]
+      total_seconds = total_seconds + seconds
+    }
+
+    return total_seconds;
   }
 
   render() {
@@ -43,7 +63,7 @@ export default class InstructionCard extends Component {
           ?
           <CountDown
             style={styles.timer}
-            until={this.props.time}
+            until={this.getTime()}
             onFinish={() => this.props.handleTimer(this.props.step)}
             size={35}
             digitStyle={{backgroundColor: '#000'}}

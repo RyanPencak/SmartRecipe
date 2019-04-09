@@ -47,6 +47,7 @@ export default class Recipe extends Component {
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
     Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
+    Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
   }
 
   // static propTypes = {
@@ -103,10 +104,33 @@ export default class Recipe extends Component {
     this.setState({
       results: e.value,
     });
+
+    console.log(this.state.results)
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("next")){
+        Voice.stop()
+        // this.pageRight();
+      }
+    }
+  }
+
+  onSpeechEnd(e) {
+    console.log("end")
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("next")){
+        this.pageRight();
+        Voice.start('en-US');
+      }
+    }
+  }
+
+  endVoice() {
+    Voice.destroy().then(Voice.removeAllListeners);
+    this._startRecognition();
   }
 
   async _startRecognition(e) {
-    this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0]));
+    console.log("STARTING RECOGNITION")
     this.setState({
       recognized: '',
       started: '',
@@ -117,6 +141,7 @@ export default class Recipe extends Component {
     } catch (e) {
       console.error(e);
     }
+    console.log(Voice.isRecognizing())
   }
 
   parse(str) {
@@ -150,6 +175,7 @@ export default class Recipe extends Component {
     this.setState({
       step: this.state.step + 1
     }, () => {
+      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0]));
       this._startRecognition();
     });
   }
