@@ -108,18 +108,19 @@ export default class Recipe extends Component {
     console.log(this.state.results)
     if (this.state.results[0] !== undefined){
       if (this.state.results[0].includes("next")
+            || this.state.results[0].includes("done")
             || this.state.results[0].includes("repeat")
-            || this.state.results[0].includes("last")) {
+            || this.state.results[0].includes("last")
+            || this.state.results[0].includes("previous")) {
 
         Voice.stop()
-        // this.pageRight();
       }
     }
   }
 
   onSpeechEnd(e) {
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("next")){
+      if (this.state.results[0].includes("next") || this.state.results[0].includes("done")){
         this.pageRight();
         Voice.start('en-US');
       }
@@ -131,20 +132,15 @@ export default class Recipe extends Component {
       }
     }
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("last")){
+      if (this.state.results[0].includes("last") || this.state.results[0].includes("previous")){
         this.pageLeft();
         Voice.start('en-US');
       }
     }
-  }
-
-  endVoice() {
-    Voice.destroy().then(Voice.removeAllListeners);
-    this._startRecognition();
+    // Voice.start('en-US');
   }
 
   async _startRecognition(e) {
-    console.log("STARTING RECOGNITION")
     this.setState({
       recognized: '',
       started: '',
@@ -179,7 +175,7 @@ export default class Recipe extends Component {
   }
 
   speak(input) {
-    Tts.setDefaultRate(0.5);
+    Tts.setDefaultRate(0.45);
     Tts.setDefaultPitch(0.9);
     Tts.setDefaultVoice('com.apple.ttsbundle.Samantha-compact');
     Tts.speak(input);

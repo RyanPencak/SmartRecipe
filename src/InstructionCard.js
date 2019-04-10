@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'column',
+    alignItems: 'center',
     marginLeft: 10,
     marginBottom: 10,
     height: height,
@@ -97,9 +98,10 @@ const styles = StyleSheet.create({
   },
   image: {
     alignItems: 'center',
+    justifyContent: 'center',
     borderRadius: 10,
-    height: 300,
-    width: 300,
+    height: 200,
+    width: 200,
     marginTop: 20
   },
   title: {
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   step: {
-    ...defaultStyles.header2,
+    ...defaultStyles.header3,
     marginTop: 50,
     marginBottom: 50,
     marginLeft: 10,
