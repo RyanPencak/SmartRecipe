@@ -14,7 +14,7 @@ import Timeline from 'react-native-timeline-listview'
 
 const { width, height } = Dimensions.get('window');
 
-export default class IngredientList extends Component {
+export default class Overview extends Component {
   constructor(props) {
     super(props);
   }
@@ -22,9 +22,9 @@ export default class IngredientList extends Component {
   getData(){
     this.data = []
     let i;
-    for (i = 0; i < this.props.ingredients.length; i++) {
+    for (i = 0; i < this.props.steps.length; i++) {
       this.data.push({
-        title: "\u2022 " + this.props.ingredients[i][0] + " " + this.props.ingredients[i][1],
+        title: "" + this.props.steps[i],
         description: ''
       })
     }
@@ -41,11 +41,11 @@ export default class IngredientList extends Component {
           >
           <Timeline
             data={this.data}
-            circleSize={0}
-            circleColor='rgb(255,255,255)'
-            lineColor='rgb(255,255,255)'
-            showTime={false}
+            circleSize={20}
+            circleColor='rgb(45,156,219)'
+            lineColor='rgb(45,156,219)'
             descriptionStyle={{color:'gray'}}
+            showTime={false}
             options={{
               style:{paddingTop:30}
             }}
@@ -57,10 +57,6 @@ export default class IngredientList extends Component {
 }
 
 const styles = StyleSheet.create({
-  bullet: {
-    fontSize: 20,
-    marginTop: 20,
-  },
   container: {
     marginLeft: 10,
     marginBottom: 10,

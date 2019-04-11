@@ -1,5 +1,6 @@
 import React, { Component, PropTypes } from 'react';
 import {
+  ScrollView,
   Animated,
   Button,
   Image,
@@ -8,13 +9,17 @@ import {
   Text,
   TouchableOpacity,
   View,
-  FlatList
+  FlatList,
+  ListView
 } from 'react-native';
 import { defaultStyles } from './styles';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';
 import Dialogflow from "react-native-dialogflow";
 import InstructionCard from './InstructionCard';
+import IngredientList from './IngredientList';
+import Overview from './Overview';
+import * as Progress from 'react-native-progress';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,19 +30,13 @@ export default class Recipe extends Component {
 
     this.state = {
       step: 0,
-      step_images: [
-        "https://cdn3.iconfinder.com/data/icons/kitchen-universe-2/140/29_oven-512.png",
-        "https://www.flourishfundamentals.com/wp-content/uploads/2016/11/Icon-Cast-Iron-Pan-300x300.png",
-        "",
-        ".",
-        "https://cdn2.iconfinder.com/data/icons/food-desserts-drinks-and-sweets/512/grillmeat-512.png",
-        "https://upload.wikimedia.org/wikipedia/commons/2/2b/Beef_fillet_steak_with_mushrooms.jpg"
-      ],
       recognized: '',
       started: '',
       results: [],
       position: new Animated.Value(this.props.isOpen ? 0 : height),
       visible: this.props.isOpen,
+      ingredientsOpen: false,
+      overviewOpen: false,
     };
 
     Dialogflow.setConfiguration(
@@ -190,6 +189,30 @@ export default class Recipe extends Component {
     });
   }
 
+  showIngredients() {
+    this.setState({
+      ingredientsOpen: true
+    });
+  }
+
+  hideIngredients() {
+    this.setState({
+      ingredientsOpen: false
+    });
+  }
+
+  showOverview() {
+    this.setState({
+      overviewOpen: true
+    });
+  }
+
+  hideOverview() {
+    this.setState({
+      overviewOpen: false
+    });
+  }
+
   pageLeft() {
     this.setState({
       step: this.state.step - 1
@@ -233,20 +256,29 @@ export default class Recipe extends Component {
         </View> */}
         <InstructionCard
           title={this.parse('Step %s', this.state.step)}
-          pic={this.state.step_images[this.state.step - 1]}
+          pic={this.props.recipe.stepImages[this.state.step - 1]}
           instruction={this.props.recipe.steps[this.state.step - 1]}
           step={this.state.step}
+          totalSteps={this.props.recipe.steps.length}
           time={10}
           handleTimer={this.handleTimer}
         />
         <View style={styles.buttonBar}>
-          <TouchableOpacity style={styles.startButton} onPress={() => this.pageLeft()}>
+          <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
             <Text style={styles.startButtonText}>Previous</Text>
           </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
+            <Image style={styles.ingredientButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
+            <Text style={styles.startButtonText}>Ingredients</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.button} onPress={() => this.showOverview()}>
+            <Image style={styles.overviewButtonImage} source={require('./assets/overview_icon.png')}/>
+            <Text style={styles.startButtonText}>Overview</Text>
+          </TouchableOpacity>
           {
-            this.state.step < this.props.recipe.steps.length - 1
+            this.state.step < this.props.recipe.steps.length
             ?
-            <TouchableOpacity style={styles.startButton} onPress={() => this.pageRight()}>
+            <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
               <Text style={styles.startButtonText}>Next</Text>
             </TouchableOpacity>
             :
@@ -257,52 +289,172 @@ export default class Recipe extends Component {
     )
   }
 
+  listIngredients() {
+    let i;
+    for (i = 0; i < this.props.recipe.ingredients.length; i++) {
+      return(<IngredientList instruction={this.props.recipe.ingredients[i]}/>);
+    }
+  }
+
   render() {
     const { recipe, handleClose } = this.props;
 
     if (!this.state.visible) {
       return null;
     }
-    return (
-      <View style={styles.container}>
-        <Animated.View
-          style={[styles.modal, {
-            transform: [{ translateY: this.state.position }, { translateX: 0 }]
-          }]}
-        >
-          <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
-            <Text style={styles.closeText}>X</Text>
-          </TouchableOpacity>
 
-          {
-            this.state.step === 0
-            ?
-            <View style={styles.card}>
-              <Image source={{ uri: this.props.recipe.pic }} style={styles.stepImage} />
-              <View>
-                <Text style={styles.header2}>{this.props.recipe.title}</Text>
-                <Text style={styles.header3}>{this.props.recipe.time}</Text>
-                {/* {this.props.recipe.ingredients.map((quantity,ingredient) => <Text>{quantity}:{ingredient}</Text>)} */}
+    if (this.state.ingredientsOpen) {
+      return (
+        <View style={styles.container}>
+          <Animated.View
+            style={[styles.modal, {
+              transform: [{ translateY: this.state.position }, { translateX: 0 }]
+            }]}
+          >
+            <TouchableOpacity style={styles.closeButton} onPress={() => this.hideIngredients()}>
+              <Text style={styles.closeText}>X</Text>
+            </TouchableOpacity>
+            <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
+            <IngredientList
+              ingredients={this.props.recipe.ingredients}
+            />
+          </Animated.View>
+        </View>
+      );
+    }
+    else if (this.state.overviewOpen) {
+      return (
+        <View style={styles.container}>
+          <Animated.View
+            style={[styles.modal, {
+              transform: [{ translateY: this.state.position }, { translateX: 0 }]
+            }]}
+          >
+            <TouchableOpacity style={styles.closeButton} onPress={() => this.hideOverview()}>
+              <Text style={styles.closeText}>X</Text>
+            </TouchableOpacity>
+            <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
+            <Overview
+              steps={this.props.recipe.steps}
+            />
+          </Animated.View>
+        </View>
+      );
+    }
+    else {
+      if (this.state.step === 0) {
+        return (
+          <View style={styles.container}>
+            <Animated.View
+              style={[styles.modal, {
+                transform: [{ translateY: this.state.position }, { translateX: 0 }]
+              }]}
+            >
+              <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
+                <Text style={styles.closeText}>X</Text>
+              </TouchableOpacity>
+
+              <View style={styles.card}>
+                <Image source={{ uri: this.props.recipe.pic }} style={styles.stepImage} />
+                <View style={styles.indent}>
+                  <Text style={styles.header2}>{this.props.recipe.title}</Text>
+                  <Text style={styles.header3}>{'Time: '}{this.props.recipe.time}</Text>
+                  <Text style={styles.header3}>{'Author: '}{this.props.recipe.author}</Text>
+                </View>
+                <View style={styles.buttonBar}>
+                  <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
+                    <Image style={styles.ingredientButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
+                    <Text style={styles.startButtonText}>Ingredients</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.button} onPress={() => this.startRecipe()}>
+                    <Image style={styles.startButtonImage} source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Microphone-outlined-circular-button.svg/1024px-Microphone-outlined-circular-button.svg.png"}}/>
+                    <Text style={styles.startButtonText}>Start</Text>
+                  </TouchableOpacity>
+
+                  <TouchableOpacity style={styles.button} onPress={() => this.showOverview()}>
+                    <Image style={styles.overviewButtonImage} source={require('./assets/overview_icon.png')}/>
+                    <Text style={styles.startButtonText}>Overview</Text>
+                  </TouchableOpacity>
+                </View>
               </View>
-              <View style={styles.buttonBar}>
-                <TouchableOpacity style={styles.startButton} onPress={() => this.showIngredients()}>
-                  <Image style={styles.startButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
-                  <Text style={styles.startButtonText}>Ingredients</Text>
-                </TouchableOpacity>
 
-                <TouchableOpacity style={styles.startButton} onPress={() => this.startRecipe()}>
-                  <Image style={styles.startButtonImage} source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Microphone-outlined-circular-button.svg/1024px-Microphone-outlined-circular-button.svg.png"}}/>
-                  <Text style={styles.startButtonText}>Start</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-            :
-            this.generateCard()
-          }
+            </Animated.View>
+          </View>
+        );
+      }
+      else {
+        return (
+          <View style={styles.container}>
+            <Animated.View
+              style={[styles.modal, {
+                transform: [{ translateY: this.state.position }, { translateX: 0 }]
+              }]}
+            >
+              <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
+                <Text style={styles.closeText}>X</Text>
+              </TouchableOpacity>
 
-        </Animated.View>
-      </View>
-    );
+              {this.generateCard()}
+
+            </Animated.View>
+          </View>
+        );
+      }
+    }
+
+    // return (
+    //   <View style={styles.container}>
+    //     <Animated.View
+    //       style={[styles.modal, {
+    //         transform: [{ translateY: this.state.position }, { translateX: 0 }]
+    //       }]}
+    //     >
+    //       <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
+    //         <Text style={styles.closeText}>X</Text>
+    //       </TouchableOpacity>
+    //
+    //       {
+    //         this.state.ingredientsOpen
+    //         ?
+    //         <IngredientList
+    //           recipe={this.props.recipe}
+    //           visible={this.state.ingredientsOpen}
+    //           close={this.hideIngredients}
+    //         />
+    //         :
+    //         null
+    //       }
+    //
+    //       {
+    //         this.state.step === 0 && !this.state.ingredientsOpen
+    //         ?
+    //         <View style={styles.card}>
+    //           <Image source={{ uri: this.props.recipe.pic }} style={styles.stepImage} />
+    //           <View>
+    //             <Text style={styles.header2}>{this.props.recipe.title}</Text>
+    //             <Text style={styles.header3}>{this.props.recipe.time}</Text>
+    //             {/* {this.props.recipe.ingredients.map((quantity,ingredient) => <Text>{quantity}:{ingredient}</Text>)} */}
+    //           </View>
+    //           <View style={styles.buttonBar}>
+    //             <TouchableOpacity style={styles.startButton} onPress={() => this.showIngredients()}>
+    //               <Image style={styles.startButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
+    //               <Text style={styles.startButtonText}>Ingredients</Text>
+    //             </TouchableOpacity>
+    //
+    //             <TouchableOpacity style={styles.startButton} onPress={() => this.startRecipe()}>
+    //               <Image style={styles.startButtonImage} source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Microphone-outlined-circular-button.svg/1024px-Microphone-outlined-circular-button.svg.png"}}/>
+    //               <Text style={styles.startButtonText}>Start</Text>
+    //             </TouchableOpacity>
+    //           </View>
+    //         </View>
+    //         :
+    //         this.generateCard()
+    //       }
+    //
+    //     </Animated.View>
+    //   </View>
+    // );
   }
 
 }
@@ -312,6 +464,9 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     // justifyContent: 'flex-end',
     backgroundColor: 'transparent',
+  },
+  indent: {
+    marginLeft: 20
   },
   modal: {
     height: height,
@@ -330,17 +485,31 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'flex-end',
-    justifyContent: 'space-between',
+    justifyContent: 'space-around',
   },
-  startButton: {
+  button: {
     alignItems: 'center',
     justifyContent: 'center',
-    margin: 60
+    marginBottom: 20
+  },
+  ingredientButtonImage: {
+    borderRadius: 10,
+    height: 50,
+    width: 50,
+    marginTop: 20,
+    marginBottom: 10,
   },
   startButtonImage: {
     borderRadius: 10,
     height: 50,
     width: 50,
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  overviewButtonImage: {
+    borderRadius: 10,
+    height: 50,
+    width: 80,
     marginTop: 20,
     marginBottom: 10,
   },
@@ -376,11 +545,17 @@ const styles = StyleSheet.create({
     ...defaultStyles.header,
   },
   header2: {
+    marginLeft: 10,
     fontFamily: 'Avenir',
     fontSize: 30,
   },
   header3: {
+    marginLeft: 10,
     fontFamily: 'Avenir',
     fontSize: 20,
+  },
+  scrollContent: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
 });

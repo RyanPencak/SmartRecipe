@@ -5,16 +5,16 @@ export const recipes = [
     time: '15 Minutes',
     pic: 'https://static01.nyt.com/images/2018/05/02/dining/02Appetite1/02Appetite1-articleLarge.jpg',
     photocreds: 'Andrew Scrivani for the New York Times',
-    ingredients: [{
-      "2": "Large scallions, trimmed",
-      "1/4 Cup": "Peanut oil",
-      "1 3/4 Pounds": "Boneless, skinless chicken breasts or thighs",
-      "1/2 Teaspoon": "Kosher salt",
-      "1 Cup": "Cilantro leaves and tender stems",
-      "1 Piece (3 Tablespoons)": "Ginger",
-      "3 Tablespoons": "Soy Sauce",
-      "Large Pinch": "Sugar"
-    }],
+    ingredients: [
+      ["2", "Large scallions, trimmed"],
+      ["1/4 Cup", "Peanut oil"],
+      ["1 3/4 Pounds", "Boneless, skinless chicken breasts or thighs"],
+      ["1/2 Teaspoon", "Kosher salt"],
+      ["1 Cup", "Cilantro leaves and tender stems"],
+      ["1 Piece (3 Tablespoons)", "Ginger"],
+      ["3 Tablespoons", "Soy Sauce"],
+      ["Large Pinch", "Sugar"]
+    ],
     steps: [
       "Cut 2 scallions in quarters lengthwise, then crosswise.",
       "Separate the dark green tops of the scallions from the rest.",
@@ -29,7 +29,22 @@ export const recipes = [
       "Stir in scallion whites, soy sauce, and sugar.",
       "Cook for another 30 seconds",
       "Remove wok from heat and spoon contents over the chicken.",
-      "Serve and Enjoy."]
+      "Serve and Enjoy."],
+    stepImages: [
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+      ""]
   },
   {
     title: 'Seared Steak',
@@ -37,11 +52,11 @@ export const recipes = [
     time: '55 Minutes',
     pic: 'https://upload.wikimedia.org/wikipedia/commons/2/2b/Beef_fillet_steak_with_mushrooms.jpg',
     // ingredients: ["2 Rib-eye Steak", "Course Salt", "Black Pepper"],
-    ingredients: [{
-      "2": "Rib-eye Steak",
-      "To Taste": "Course Salt",
-      "To Taste": "Black Pepper"
-    }],
+    ingredients: [
+      ["2", "Rib-eye Steak"],
+      ["To Taste", "Course Salt"],
+      ["To Taste", "Black Pepper"]
+    ],
     steps: [
       "Heat oven to 500 degrees.",
       // "Turn stove burner on high.",
@@ -52,7 +67,14 @@ export const recipes = [
       "Leave steaks in the oven for 4 minutes. Get your oven mitts ready.",
       "Flip the steaks. Leave them in the oven for 4 minutes.",
       "Remove the skillet from the oven and let rest.",
-      "Time to slice the steaks and enjoy."]
+      "Time to slice the steaks and enjoy."],
+    stepImages: [
+      "https://cdn3.iconfinder.com/data/icons/kitchen-universe-2/140/29_oven-512.png",
+      "https://www.flourishfundamentals.com/wp-content/uploads/2016/11/Icon-Cast-Iron-Pan-300x300.png",
+      "",
+      "",
+      "https://cdn2.iconfinder.com/data/icons/food-desserts-drinks-and-sweets/512/grillmeat-512.png",
+      "https://upload.wikimedia.org/wikipedia/commons/2/2b/Beef_fillet_steak_with_mushrooms.jpg"],
   },
   {
     title: 'Chicken Parm',

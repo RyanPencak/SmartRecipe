@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import { defaultStyles } from './styles';
 import CountDown from 'react-native-countdown-component';
+import * as Progress from 'react-native-progress';
 
 const { width, height } = Dimensions.get('window');
 
@@ -57,6 +58,7 @@ export default class InstructionCard extends Component {
     // const { title, pic, instruction, step, time, handleTimer } = this.props;
     return (
       <View style={styles.container} key={this.props.step}>
+        <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
         <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
         {
           (this.props.instruction.includes("minute") || this.props.instruction.includes("second"))
