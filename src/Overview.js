@@ -24,7 +24,7 @@ export default class Overview extends Component {
     let i;
     for (i = 0; i < this.props.steps.length; i++) {
       this.data.push({
-        title: "" + this.props.steps[i],
+        title: "" + this.props.steps[i].instruction,
         description: ''
       })
     }

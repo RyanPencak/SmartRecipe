@@ -13,6 +13,19 @@ import Recipe from './Recipe';
 export default class Explore extends Component {
   state = {
     recipeOpen: false,
+    recipe: null,
+    recipe_list: []
+  }
+
+  componentDidMount() {
+    this.getRecipes();
+  }
+
+  getRecipes() {
+    fetch('https://smartrecipes.herokuapp.com/api', {method: 'GET'})
+      .then(response => response.json())
+      .then(data => this.setState({ recipe_list: data }))
+      .catch(err => { console.log(err) });
   }
 
   openRecipe = (recipe) => {
@@ -39,7 +52,7 @@ export default class Explore extends Component {
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}
           >
-            {recipes.map((recipe, index) => <TitleCard
+            {this.state.recipe_list.map((recipe, index) => <TitleCard
               recipe={recipe}
               handleOpen={this.openRecipe}
               key={index}
@@ -58,7 +71,7 @@ export default class Explore extends Component {
 const styles = StyleSheet.create({
   header: {
     ...defaultStyles.header,
-    paddingTop: 5,
+    paddingTop: 20,
     paddingBottom: 20
   },
   center: {
@@ -67,6 +80,8 @@ const styles = StyleSheet.create({
   },
   container: {
     paddingTop: 20,
+    backgroundColor: "#F7F7F7",
+    flex: 1,
   },
   scrollContent: {
     flexDirection: 'row',

@@ -15,11 +15,11 @@ import {
 import { defaultStyles } from './styles';
 import Tts from 'react-native-tts';
 import Voice from 'react-native-voice';
-import Dialogflow from "react-native-dialogflow";
 import InstructionCard from './InstructionCard';
 import IngredientList from './IngredientList';
 import Overview from './Overview';
 import * as Progress from 'react-native-progress';
+// import Dialogflow from "react-native-dialogflow";
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,9 +39,9 @@ export default class Recipe extends Component {
       overviewOpen: false,
     };
 
-    Dialogflow.setConfiguration(
-      "b572c2f657df43098fc73e8ce901e081", Dialogflow.LANG_ENGLISH
-    );
+    // Dialogflow.setConfiguration(
+    //   "b572c2f657df43098fc73e8ce901e081", Dialogflow.LANG_ENGLISH
+    // );
 
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
     Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
@@ -126,7 +126,7 @@ export default class Recipe extends Component {
     }
     if (this.state.results[0] !== undefined){
       if (this.state.results[0].includes("repeat")){
-        this.speak(this.props.recipe.steps[this.state.step-1]);
+        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
         Voice.start('en-US');
       }
     }
@@ -184,7 +184,7 @@ export default class Recipe extends Component {
     this.setState({
       step: this.state.step + 1
     }, () => {
-      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0]));
+      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0][0].instruction));
       this._startRecognition();
     });
   }
@@ -217,7 +217,7 @@ export default class Recipe extends Component {
     this.setState({
       step: this.state.step - 1
     }, () => {
-      this.speak(this.props.recipe.steps[this.state.step-1]);
+      this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
     });
   }
 
@@ -225,7 +225,7 @@ export default class Recipe extends Component {
     this.setState({
       step: this.state.step + 1
     }, () => {
-      this.speak(this.props.recipe.steps[this.state.step-1]);
+      this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
     });
   }
 
@@ -233,7 +233,7 @@ export default class Recipe extends Component {
     this.setState({
       step: step + 1
     }, () => {
-      this.speak(this.props.recipe.steps[step]);
+      this.speak(this.props.recipe.steps[0][step].instruction);
     });
   }
 
@@ -256,11 +256,11 @@ export default class Recipe extends Component {
         </View> */}
         <InstructionCard
           title={this.parse('Step %s', this.state.step)}
-          pic={this.props.recipe.stepImages[this.state.step - 1]}
-          instruction={this.props.recipe.steps[this.state.step - 1]}
+          pic={this.props.recipe.steps[0][this.state.step - 1].img}
+          time={this.props.recipe.steps[0][this.state.step - 1].time}
+          instruction={this.props.recipe.steps[0][this.state.step - 1].instruction}
           step={this.state.step}
-          totalSteps={this.props.recipe.steps.length}
-          time={10}
+          totalSteps={this.props.recipe.steps[0].length}
           handleTimer={this.handleTimer}
         />
         <View style={styles.buttonBar}>
@@ -276,7 +276,7 @@ export default class Recipe extends Component {
             <Text style={styles.startButtonText}>Overview</Text>
           </TouchableOpacity>
           {
-            this.state.step < this.props.recipe.steps.length
+            this.state.step < this.props.recipe.steps[0].length
             ?
             <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
               <Text style={styles.startButtonText}>Next</Text>
@@ -335,7 +335,7 @@ export default class Recipe extends Component {
             </TouchableOpacity>
             <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
             <Overview
-              steps={this.props.recipe.steps}
+              steps={this.props.recipe.steps[0]}
             />
           </Animated.View>
         </View>
@@ -355,7 +355,7 @@ export default class Recipe extends Component {
               </TouchableOpacity>
 
               <View style={styles.card}>
-                <Image source={{ uri: this.props.recipe.pic }} style={styles.stepImage} />
+                <Image source={{ uri: this.props.recipe.titleImg }} style={styles.stepImage} />
                 <View style={styles.indent}>
                   <Text style={styles.header2}>{this.props.recipe.title}</Text>
                   <Text style={styles.header3}>{'Time: '}{this.props.recipe.time}</Text>

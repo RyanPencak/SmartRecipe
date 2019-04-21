@@ -75,12 +75,5 @@ export const recipes = [
       "",
       "https://cdn2.iconfinder.com/data/icons/food-desserts-drinks-and-sweets/512/grillmeat-512.png",
       "https://upload.wikimedia.org/wikipedia/commons/2/2b/Beef_fillet_steak_with_mushrooms.jpg"],
-  },
-  {
-    title: 'Chicken Parm',
-    time: '40 Minutes',
-    pic: 'https://upload.wikimedia.org/wikipedia/commons/f/f2/Chicken_dish.jpg',
-    ingredients: [],
-    steps: []
   }
 ];

@@ -18,14 +18,14 @@ export default class TitleCard extends Component {
     handleOpen: PropTypes.func.isRequired,
   }
   render() {
-    const { recipe, recipe: { title, time, pic }, handleOpen } = this.props;
+    const { recipe, handleOpen } = this.props;
     return (
       <TouchableOpacity style={styles.container} onPress={() => handleOpen(recipe)}>
         <View style={styles.imageContainer}>
-          <Image source={{ uri: pic }} style={styles.image} />
+          <Image source={{ uri: recipe.titleImg }} style={styles.image} />
         </View>
-        <Text style={styles.title} numberOfLines={1}>{title}</Text>
-        <Text style={styles.genre} numberOfLines={1}>{time}</Text>
+        <Text style={styles.title} numberOfLines={1}>{recipe.title}</Text>
+        <Text style={styles.time} numberOfLines={1}>{recipe.time}</Text>
       </TouchableOpacity>
     );
   }
@@ -50,7 +50,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     marginTop: 4,
   },
-  genre: {
+  time: {
     ...defaultStyles.text,
     color: '#BBBBBB',
     fontSize: 14,
