@@ -17,8 +17,11 @@ export default class Explore extends Component {
     recipe_list: []
   }
 
-  componentDidMount() {
-    this.getRecipes();
+  componentWillMount() {
+    fetch('https://smartrecipes.herokuapp.com/api', {method: 'GET'})
+      .then(response => response.json())
+      .then(data => this.setState({ recipe_list: data }))
+      .catch(err => { console.log(err) });
   }
 
   getRecipes() {

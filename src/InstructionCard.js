@@ -23,18 +23,18 @@ export default class InstructionCard extends Component {
     handleTimer: PropTypes.func.isRequired
   }
 
-  componentWillReceiveProps(nextProps) {
-    if(JSON.stringify(this.props.step) !== JSON.stringify(nextProps.step))
-    {
-      this.props.step = nextProps.step;
-    }
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   if(JSON.stringify(this.props.step) !== JSON.stringify(nextProps.step))
+  //   {
+  //     this.props.step = nextProps.step;
+  //   }
+  // }
 
   // shouldComponentUpdate(nextProps){
   //   return nextProps.pic != this.props.pic;
   // }
 
-  getTime(){
+  getTimeFromStep() {
     let total_seconds = 0
     if (this.props.instruction.includes("minute")) {
       let min_split = this.props.instruction.split("minute");
@@ -54,29 +54,55 @@ export default class InstructionCard extends Component {
     return total_seconds;
   }
 
+  getTime() {
+    let total_seconds = 0;
+    let split_time = this.props.time.split(":");
+    total_seconds += parseInt(split_time[0],10)*60*60;
+    total_seconds += parseInt(split_time[2],10);
+    total_seconds += parseInt(split_time[1],10)*60;
+    return total_seconds;
+  }
+
+  getTimeNotice() {
+    let seconds = this.getTime();
+    if (seconds < 120) {
+      return 10;
+    }
+    else {
+      return 60;
+    }
+  }
+
   render() {
-    // const { title, pic, instruction, step, time, handleTimer } = this.props;
     return (
       <View style={styles.container} key={this.props.step}>
         <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
         <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
         {
-          (this.props.instruction.includes("minute") || this.props.instruction.includes("second"))
+          (this.props.time)
           ?
-          <CountDown
-            style={styles.timer}
-            until={this.getTime()}
-            onFinish={() => this.props.handleTimer(this.props.step)}
-            size={35}
-            digitStyle={{backgroundColor: '#000'}}
-            digitTxtStyle={{color: '#FFF'}}
-            timeToShow={['M', 'S']}
-            timeLabels={{m: 'MM', s: 'SS'}}
-          />
+          <View>
+            <CountDown
+              until={this.getTimeNotice()}
+              onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+              size={0}
+              timeToShow={[]}
+              timeLabels={{}}
+            />
+            <CountDown
+              style={styles.timer}
+              until={this.getTime()}
+              onFinish={() => this.props.handleTimer(this.props.step)}
+              size={35}
+              digitStyle={{backgroundColor: '#000'}}
+              digitTxtStyle={{color: '#FFF'}}
+              timeToShow={['M', 'S']}
+              timeLabels={{m: 'MM', s: 'SS'}}
+            />
+          </View>
           :
           <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
         }
-        {/* <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} /> */}
         <View style={styles.textContainer}>
           <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
         </View>

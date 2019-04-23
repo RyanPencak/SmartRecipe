@@ -104,14 +104,25 @@ export default class Recipe extends Component {
       results: e.value,
     });
 
-    console.log(this.state.results)
-    if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("next")
-            || this.state.results[0].includes("done")
-            || this.state.results[0].includes("repeat")
-            || this.state.results[0].includes("last")
-            || this.state.results[0].includes("previous")) {
+    console.log(this.state.results);
 
+    if (this.state.results[0] !== undefined)
+    {
+      if (this.state.results[0].includes("next")
+            || this.state.results[0].includes("Next")
+            || this.state.results[0].includes("done")
+            || this.state.results[0].includes("Done")
+            || this.state.results[0].includes("repeat")
+            || this.state.results[0].includes("Repeat")
+            || this.state.results[0].includes("last")
+            || this.state.results[0].includes("Last")
+            || this.state.results[0].includes("previous")
+            || this.state.results[0].includes("Previous")
+            || this.state.results[0].includes("how much")
+            || this.state.results[0].includes("How much")
+            || this.state.results[0].includes("How many")
+            || this.state.results[0].includes("How many"))
+      {
         Voice.stop()
       }
     }
@@ -119,24 +130,55 @@ export default class Recipe extends Component {
 
   onSpeechEnd(e) {
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("next") || this.state.results[0].includes("done")){
+      if (this.state.results[0].includes("next") || this.state.results[0].includes("Next") || this.state.results[0].includes("done") || this.state.results[0].includes("Done")){
         this.pageRight();
         Voice.start('en-US');
       }
     }
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("repeat")){
+      if (this.state.results[0].includes("repeat") || this.state.results[0].includes("Repeat")){
         this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
         Voice.start('en-US');
       }
     }
     if (this.state.results[0] !== undefined){
-      if (this.state.results[0].includes("last") || this.state.results[0].includes("previous")){
+      if (this.state.results[0].includes("last") || this.state.results[0].includes("Last") || this.state.results[0].includes("previous") || this.state.results[0].includes("Previous")){
         this.pageLeft();
         Voice.start('en-US');
       }
     }
-    // Voice.start('en-US');
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("how much") || this.state.results[0].includes("How much")){
+        let find = this.state.results[0].split("much");
+        this.findIngredient(find[1]);
+        Voice.start('en-US');
+      }
+    }
+    if (this.state.results[0] !== undefined){
+      if (this.state.results[0].includes("How many") || this.state.results[0].includes("How many")){
+        let find = this.state.results[0].split("many");
+        this.findIngredient(find[1]);
+        Voice.start('en-US');
+      }
+    }
+  }
+
+  findIngredient(find) {
+    console.log("Finding...");
+    if (find.includes(" ")) {
+      let ingredient = find.split(" ");
+      if (ingredient[1]) {
+        let ingredientToFind = ingredient[1];
+        console.log(ingredientToFind);
+        let i;
+        for (i = 0; i < this.props.recipe.ingredients.length; i++) {
+          let current = this.props.recipe.ingredients[i][1].toLowerCase()
+          if (current.includes(ingredientToFind)) {
+            this.speak(this.props.recipe.ingredients[i][0]);
+          }
+        }
+      }
+    }
   }
 
   async _startRecognition(e) {
@@ -233,6 +275,7 @@ export default class Recipe extends Component {
     this.setState({
       step: step + 1
     }, () => {
+      Voice.start('en-US');
       this.speak(this.props.recipe.steps[0][step].instruction);
     });
   }
@@ -262,10 +305,19 @@ export default class Recipe extends Component {
           step={this.state.step}
           totalSteps={this.props.recipe.steps[0].length}
           handleTimer={this.handleTimer}
+          speak={this.speak}
         />
         <View style={styles.buttonBar}>
           <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
-            <Text style={styles.startButtonText}>Previous</Text>
+          {
+            this.state.step > 1
+            ?
+            <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
+              <Text style={styles.startButtonText}>Previous</Text>
+            </TouchableOpacity>
+            :
+            null
+          }
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
             <Image style={styles.ingredientButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
@@ -296,6 +348,11 @@ export default class Recipe extends Component {
     }
   }
 
+  closeWindow() {
+    Voice.destroy().then(Voice.removeAllListeners);
+    this.props.handleClose()
+  }
+
   render() {
     const { recipe, handleClose } = this.props;
 
@@ -312,7 +369,7 @@ export default class Recipe extends Component {
             }]}
           >
             <TouchableOpacity style={styles.closeButton} onPress={() => this.hideIngredients()}>
-              <Text style={styles.closeText}>X</Text>
+              <Image style={styles.closeButtonImage} source={require('./assets/close_icon.png')}/>
             </TouchableOpacity>
             <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
             <IngredientList
@@ -331,7 +388,7 @@ export default class Recipe extends Component {
             }]}
           >
             <TouchableOpacity style={styles.closeButton} onPress={() => this.hideOverview()}>
-              <Text style={styles.closeText}>X</Text>
+              <Image style={styles.closeButtonImage} source={require('./assets/close_icon.png')}/>
             </TouchableOpacity>
             <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
             <Overview
@@ -350,8 +407,8 @@ export default class Recipe extends Component {
                 transform: [{ translateY: this.state.position }, { translateX: 0 }]
               }]}
             >
-              <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
-                <Text style={styles.closeText}>X</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={() => this.closeWindow()}>
+                <Image style={styles.closeButtonImage} source={require('./assets/close_icon.png')}/>
               </TouchableOpacity>
 
               <View style={styles.card}>
@@ -391,8 +448,8 @@ export default class Recipe extends Component {
                 transform: [{ translateY: this.state.position }, { translateX: 0 }]
               }]}
             >
-              <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
-                <Text style={styles.closeText}>X</Text>
+              <TouchableOpacity style={styles.closeButton} onPress={() => this.closeWindow()}>
+                <Image style={styles.closeButtonImage} source={require('./assets/close_icon.png')}/>
               </TouchableOpacity>
 
               {this.generateCard()}
@@ -476,7 +533,12 @@ const styles = StyleSheet.create({
   closeButton: {
     alignItems: 'flex-end',
     paddingRight: 20,
-    paddingTop: 20,
+    paddingTop: 20
+  },
+  closeButtonImage: {
+    height: 30,
+    width: 30,
+    marginTop: 10,
   },
   closeText: {
     fontSize: 20
