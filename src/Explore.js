@@ -3,7 +3,8 @@ import {
   Text,
   ScrollView,
   StyleSheet,
-  View
+  View,
+  ActivityIndicator
 } from 'react-native';
 import { defaultStyles } from './styles';
 import { recipes } from './data';
@@ -14,13 +15,14 @@ export default class Explore extends Component {
   state = {
     recipeOpen: false,
     recipe: null,
-    recipe_list: []
+    recipe_list: [],
+    loaded: false
   }
 
   componentWillMount() {
     fetch('https://smartrecipes.herokuapp.com/api', {method: 'GET'})
       .then(response => response.json())
-      .then(data => this.setState({ recipe_list: data }))
+      .then(data => this.setState({ recipe_list: data, loaded: true }))
       .catch(err => { console.log(err) });
   }
 
@@ -45,29 +47,38 @@ export default class Explore extends Component {
   }
 
   render() {
-    return (
-      <View style={styles.container}>
+    if (this.state.loaded) {
+      return (
+        <View style={styles.container}>
         <View style={styles.center}>
-          <Text style={styles.header}>SmartRecipes</Text>
+        <Text style={styles.header}>SmartRecipes</Text>
         </View>
         <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          >
-            {this.state.recipe_list.map((recipe, index) => <TitleCard
-              recipe={recipe}
-              handleOpen={this.openRecipe}
-              key={index}
-            />)}
-        </ScrollView>
-        <Recipe
+        contentContainerStyle={styles.scrollContent}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        >
+        {this.state.recipe_list.map((recipe, index) => <TitleCard
+          recipe={recipe}
+          handleOpen={this.openRecipe}
+          key={index}
+          />)}
+          </ScrollView>
+          <Recipe
           recipe={this.state.recipe}
           isOpen={this.state.recipeOpen}
           handleClose={this.closeRecipe}
-        />
-      </View>
-    );
+          />
+          </View>
+        );
+    }
+    else {
+      return (
+        <View style={[styles.container, styles.center]}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        </View>  
+      );
+    }
   }
 }
 

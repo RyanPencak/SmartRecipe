@@ -33,25 +33,23 @@ export default class Overview extends Component {
   render() {
     this.getData()
     return (
-      <View style={styles.container}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContent}
-          showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          >
-          <Timeline
-            data={this.data}
-            circleSize={20}
-            circleColor='rgb(45,156,219)'
-            lineColor='rgb(45,156,219)'
-            descriptionStyle={{color:'gray'}}
-            showTime={false}
-            options={{
-              style:{paddingTop:30}
-            }}
-          />
-        </ScrollView>
-      </View>
+      <ScrollView style={styles.container}
+        contentContainerStyle={styles.scrollContent}
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
+        >
+        <Timeline
+          data={this.data}
+          circleSize={20}
+          circleColor='rgb(45,156,219)'
+          lineColor='rgb(45,156,219)'
+          descriptionStyle={{color:'gray'}}
+          showTime={false}
+          options={{
+            style:{paddingTop:30}
+          }}
+        />
+      </ScrollView>
     );
   }
 }

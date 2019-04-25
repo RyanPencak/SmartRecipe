@@ -42,8 +42,8 @@ export default class IngredientList extends Component {
           <Timeline
             data={this.data}
             circleSize={0}
-            circleColor='rgb(255,255,255)'
-            lineColor='rgb(255,255,255)'
+            circleColor={this.props.color}
+            lineColor={this.props.color}
             showTime={false}
             descriptionStyle={{color:'gray'}}
             options={{

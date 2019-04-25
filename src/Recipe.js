@@ -19,7 +19,6 @@ import InstructionCard from './InstructionCard';
 import IngredientList from './IngredientList';
 import Overview from './Overview';
 import * as Progress from 'react-native-progress';
-// import Dialogflow from "react-native-dialogflow";
 
 const { width, height } = Dimensions.get('window');
 
@@ -39,38 +38,13 @@ export default class Recipe extends Component {
       overviewOpen: false,
     };
 
-    // Dialogflow.setConfiguration(
-    //   "b572c2f657df43098fc73e8ce901e081", Dialogflow.LANG_ENGLISH
-    // );
-
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
     Voice.onSpeechRecognized = this.onSpeechRecognized.bind(this);
     Voice.onSpeechResults = this.onSpeechResults.bind(this);
     Voice.onSpeechEnd = this.onSpeechEnd.bind(this);
   }
 
-  // static propTypes = {
-  //   recipe: PropTypes.object.isRequired,
-  //   isOpen: PropTypes.object.isRequired,
-  //   handleClose: PropTypes.func.isRequired,
-  // }
-
-  // _renderItem ({item, index}) {
-  //   return (
-  //     <View style={styles.card}>
-  //       <View>
-  //         <Text style={styles.title}>{ item.title }</Text>
-  //       </View>
-  //       <View>
-  //         <Image source={{ uri: item.pic }} style={styles.image} />
-  //       </View>
-  //       <View>
-  //         <Text style={styles.step}>{ item.instruction }</Text>
-  //       </View>
-  //     </View>
-  //   );
-  // }
-
+  // Function componentWillReceiveProps: React lifecycle function for handling animation
   componentWillReceiveProps(nextProps) {
     if (!this.props.isOpen && nextProps.isOpen) {
       this.setState({
@@ -83,22 +57,26 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function componentWillUnmount: React lifecycle function for stopping Voice
   componentWillUnmount() {
     Voice.destroy().then(Voice.removeAllListeners);
   }
 
+  // Function onSpeechStart: store state for speech started
   onSpeechStart(e) {
     this.setState({
       started: '√',
     });
   }
 
+  // Function onSpeechRecognized: store state for speech recognized
   onSpeechRecognized(e) {
     this.setState({
       recognized: '√',
     });
   }
 
+  // Function onSpeechResults: log results to state and handle user requests
   onSpeechResults(e) {
     this.setState({
       results: e.value,
@@ -128,6 +106,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function onSpeechEnd: handles user input and prompts voice assistant to respond
   onSpeechEnd(e) {
     if (this.state.results[0] !== undefined){
       if (this.state.results[0].includes("next") || this.state.results[0].includes("Next") || this.state.results[0].includes("done") || this.state.results[0].includes("Done")){
@@ -163,8 +142,8 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function findIngredient: searches for requested ingredients and speaks required amount
   findIngredient(find) {
-    console.log("Finding...");
     if (find.includes(" ")) {
       let ingredient = find.split(" ");
       if (ingredient[1]) {
@@ -181,6 +160,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function _startRecognition: runs speech recognition asynchronously
   async _startRecognition(e) {
     this.setState({
       recognized: '',
@@ -195,12 +175,14 @@ export default class Recipe extends Component {
     console.log(Voice.isRecognizing())
   }
 
+  // Function parse: takes in a string and replaces %s with variables
   parse(str) {
     var args = [].slice.call(arguments, 1);
     var i = 0;
     return str.replace(/%s/g, () => args[i++]);
   }
 
+  // Function animateOpen: handles animation for opening screens
   animateOpen() {
     this.setState({ visible: true }, () => {
       Animated.timing(
@@ -209,12 +191,14 @@ export default class Recipe extends Component {
     });
   }
 
+  // Function animateClose: handles animation for closing screens
   animateClose() {
     Animated.timing(
       this.state.position, { toValue: height }
     ).start(() => this.setState({ visible: false }));
   }
 
+  // Function speak: takes in a string input and speaks it
   speak(input) {
     Tts.setDefaultRate(0.45);
     Tts.setDefaultPitch(0.9);
@@ -222,6 +206,7 @@ export default class Recipe extends Component {
     Tts.speak(input);
   }
 
+  // Function startRecipe: begins voice assistant and starts speech recognition
   startRecipe() {
     this.setState({
       step: this.state.step + 1
@@ -231,46 +216,57 @@ export default class Recipe extends Component {
     });
   }
 
+  // Function showIngredients: sets ingredient visibility to true
   showIngredients() {
     this.setState({
       ingredientsOpen: true
     });
   }
 
+  // Function hideIngredients: sets ingredient visibility to false
   hideIngredients() {
     this.setState({
       ingredientsOpen: false
     });
   }
 
+  // Function showOverview: sets overview visibility to true
   showOverview() {
     this.setState({
       overviewOpen: true
     });
   }
 
+  // Function hideOverview: sets overview visibility to false
   hideOverview() {
     this.setState({
       overviewOpen: false
     });
   }
 
+  // Function pageLeft: decrements recipe step and speaks previous step
   pageLeft() {
-    this.setState({
-      step: this.state.step - 1
-    }, () => {
-      this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
-    });
+    if (this.state.step > 1) {
+      this.setState({
+        step: this.state.step - 1
+      }, () => {
+        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
+      });
+    }
   }
 
+  // Function pageRight: increments recipe step and speaks next step
   pageRight() {
-    this.setState({
-      step: this.state.step + 1
-    }, () => {
-      this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
-    });
+    if (this.state.step < this.props.recipe.steps[0].length) {
+      this.setState({
+        step: this.state.step + 1
+      }, () => {
+        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
+      });
+    }
   }
 
+  // Function handleTimer: called when timers end in InstructionCard
   handleTimer = (step) => {
     this.setState({
       step: step + 1
@@ -280,67 +276,63 @@ export default class Recipe extends Component {
     });
   }
 
-  handleCheckNext() {
-    console.log(typeof(this.state.results[0]));
-    if(typeof this.state.results !== 'undefined') {
-      if(this.state.results[0].indexOf("next") !== -1) {
-        this.pageRight();
-        console.log("success");
-      }
-    }
-  }
-
+  // Function generateCard: returns component for a recipe instruction card
   generateCard() {
     return (
       <View style={styles.card}>
-        {/* {this.handleCheckNext()} */}
-        {/* <View>
-          {this.state.results.map((result, index) => <Text style={styles.transcript}> {this.state.results}</Text>)}
-        </View> */}
         <InstructionCard
+          recipe={this.props.recipe}
           title={this.parse('Step %s', this.state.step)}
           pic={this.props.recipe.steps[0][this.state.step - 1].img}
           time={this.props.recipe.steps[0][this.state.step - 1].time}
           instruction={this.props.recipe.steps[0][this.state.step - 1].instruction}
+          ingredients={this.props.recipe.steps[0][this.state.step - 1].ingredients}
           step={this.state.step}
           totalSteps={this.props.recipe.steps[0].length}
           handleTimer={this.handleTimer}
           speak={this.speak}
+          pageLeft={this.pageLeft}
+          pageRight={this.pageRight}
+          height={height}
+          width={width}
         />
-        <View style={styles.buttonBar}>
+        {/* <View style={styles.navBar}>
           <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
           {
             this.state.step > 1
             ?
-            <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
+            <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
+              <Image style={styles.navButtonImage} source={require('./assets/previous_icon.png')}/>
               <Text style={styles.startButtonText}>Previous</Text>
             </TouchableOpacity>
             :
             null
           }
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
-            <Image style={styles.ingredientButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
+          </TouchableOpacity> */}
+          {/* <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
+            <Image style={styles.ingredientButtonImage} source={require('./assets/list_icon.png')}/>
             <Text style={styles.startButtonText}>Ingredients</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={() => this.showOverview()}>
             <Image style={styles.overviewButtonImage} source={require('./assets/overview_icon.png')}/>
             <Text style={styles.startButtonText}>Overview</Text>
-          </TouchableOpacity>
-          {
+          </TouchableOpacity> */}
+          {/* {
             this.state.step < this.props.recipe.steps[0].length
             ?
             <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
+              <Image style={styles.navButtonImage} source={require('./assets/next_icon.png')}/>
               <Text style={styles.startButtonText}>Next</Text>
             </TouchableOpacity>
             :
             null
           }
-        </View>
+        </View> */}
       </View>
     )
   }
 
+  // Function listIngredients: returns a listview of ingredients
   listIngredients() {
     let i;
     for (i = 0; i < this.props.recipe.ingredients.length; i++) {
@@ -348,6 +340,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function closeWindow: ends Voice and closes page
   closeWindow() {
     Voice.destroy().then(Voice.removeAllListeners);
     this.props.handleClose()
@@ -373,6 +366,7 @@ export default class Recipe extends Component {
             </TouchableOpacity>
             <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
             <IngredientList
+              color='rgb(255,255,255)'
               ingredients={this.props.recipe.ingredients}
             />
           </Animated.View>
@@ -420,12 +414,12 @@ export default class Recipe extends Component {
                 </View>
                 <View style={styles.buttonBar}>
                   <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
-                    <Image style={styles.ingredientButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
+                    <Image style={styles.ingredientButtonImage} source={require('./assets/list_icon.png')}/>
                     <Text style={styles.startButtonText}>Ingredients</Text>
                   </TouchableOpacity>
 
                   <TouchableOpacity style={styles.button} onPress={() => this.startRecipe()}>
-                    <Image style={styles.startButtonImage} source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Microphone-outlined-circular-button.svg/1024px-Microphone-outlined-circular-button.svg.png"}}/>
+                    <Image style={styles.startButtonImage} source={require('./assets/microphone_icon.png')}/>
                     <Text style={styles.startButtonText}>Start</Text>
                   </TouchableOpacity>
 
@@ -451,6 +445,26 @@ export default class Recipe extends Component {
               <TouchableOpacity style={styles.closeButton} onPress={() => this.closeWindow()}>
                 <Image style={styles.closeButtonImage} source={require('./assets/close_icon.png')}/>
               </TouchableOpacity>
+              <View style={styles.smallnavbar}>
+                {
+                  this.state.step > 1
+                  ?
+                  <TouchableOpacity style={styles.smallnavbuttonleft} onPress={() => this.pageLeft()}>
+                    <Image style={styles.smallnavbuttonimage} source={require('./assets/previous_icon.png')}/>
+                  </TouchableOpacity>
+                  :
+                  null
+                }
+                {
+                  this.state.step < this.props.recipe.steps[0].length
+                  ?
+                  <TouchableOpacity style={styles.smallnavbuttonright} onPress={() => this.pageRight()}>
+                    <Image style={styles.smallnavbuttonimage} source={require('./assets/next_icon.png')}/>
+                  </TouchableOpacity>
+                  :
+                  null
+                }
+              </View>
 
               {this.generateCard()}
 
@@ -459,59 +473,6 @@ export default class Recipe extends Component {
         );
       }
     }
-
-    // return (
-    //   <View style={styles.container}>
-    //     <Animated.View
-    //       style={[styles.modal, {
-    //         transform: [{ translateY: this.state.position }, { translateX: 0 }]
-    //       }]}
-    //     >
-    //       <TouchableOpacity style={styles.closeButton} onPress={() => handleClose()}>
-    //         <Text style={styles.closeText}>X</Text>
-    //       </TouchableOpacity>
-    //
-    //       {
-    //         this.state.ingredientsOpen
-    //         ?
-    //         <IngredientList
-    //           recipe={this.props.recipe}
-    //           visible={this.state.ingredientsOpen}
-    //           close={this.hideIngredients}
-    //         />
-    //         :
-    //         null
-    //       }
-    //
-    //       {
-    //         this.state.step === 0 && !this.state.ingredientsOpen
-    //         ?
-    //         <View style={styles.card}>
-    //           <Image source={{ uri: this.props.recipe.pic }} style={styles.stepImage} />
-    //           <View>
-    //             <Text style={styles.header2}>{this.props.recipe.title}</Text>
-    //             <Text style={styles.header3}>{this.props.recipe.time}</Text>
-    //             {/* {this.props.recipe.ingredients.map((quantity,ingredient) => <Text>{quantity}:{ingredient}</Text>)} */}
-    //           </View>
-    //           <View style={styles.buttonBar}>
-    //             <TouchableOpacity style={styles.startButton} onPress={() => this.showIngredients()}>
-    //               <Image style={styles.startButtonImage} source={{uri: "https://cdn3.iconfinder.com/data/icons/text/100/list-512.png"}}/>
-    //               <Text style={styles.startButtonText}>Ingredients</Text>
-    //             </TouchableOpacity>
-    //
-    //             <TouchableOpacity style={styles.startButton} onPress={() => this.startRecipe()}>
-    //               <Image style={styles.startButtonImage} source={{uri: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/75/Microphone-outlined-circular-button.svg/1024px-Microphone-outlined-circular-button.svg.png"}}/>
-    //               <Text style={styles.startButtonText}>Start</Text>
-    //             </TouchableOpacity>
-    //           </View>
-    //         </View>
-    //         :
-    //         this.generateCard()
-    //       }
-    //
-    //     </Animated.View>
-    //   </View>
-    // );
   }
 
 }
@@ -549,15 +510,43 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
     justifyContent: 'space-around',
   },
+  navBar: {
+    flex: 1,
+    height: 50,
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    justifyContent: 'space-between',
+    paddingLeft: 30,
+    paddingRight: 30,
+  },
+  smallnavbar: {
+    zIndex: 100
+  },
+  smallnavbuttonleft: {
+    position: 'absolute',
+    left: 15,
+    top: 150,
+  },
+  smallnavbuttonright: {
+    position: 'absolute',
+    left: width-50,
+    top: 150,
+  },
+  smallnavbuttonimage: {
+    borderRadius: 10,
+    height: 40,
+    width: 40,
+  },
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: 20
+    marginBottom: 20,
+    zIndex: 9999
   },
   ingredientButtonImage: {
-    borderRadius: 10,
-    height: 50,
-    width: 50,
+    borderRadius: 0,
+    height: 45,
+    width: 55,
     marginTop: 20,
     marginBottom: 10,
   },
@@ -575,13 +564,16 @@ const styles = StyleSheet.create({
     marginTop: 20,
     marginBottom: 10,
   },
-  startButtonText: {
-    fontSize: 16
+  navButtonImage: {
+    borderRadius: 10,
+    height: 40,
+    width: 40,
+    marginTop: 20,
+    marginBottom: 10
   },
-  transcript: {
-    textAlign: 'center',
-    color: '#B0171F',
-    marginBottom: 1,
+  startButtonText: {
+    fontSize: 16,
+    marginBottom: 10
   },
   imageContainer: {
     flex: 1,
@@ -600,7 +592,7 @@ const styles = StyleSheet.create({
   card: {
     flex: 1,
     flexDirection: 'column',
-    height: height*0.8,
+    height: height,
     width: width
   },
   title: {
