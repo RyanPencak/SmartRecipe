@@ -22,14 +22,7 @@ export default class Explore extends Component {
   componentWillMount() {
     fetch('https://smartrecipes.herokuapp.com/api', {method: 'GET'})
       .then(response => response.json())
-      .then(data => this.setState({ recipe_list: data, loaded: true }))
-      .catch(err => { console.log(err) });
-  }
-
-  getRecipes() {
-    fetch('https://smartrecipes.herokuapp.com/api', {method: 'GET'})
-      .then(response => response.json())
-      .then(data => this.setState({ recipe_list: data }))
+      .then(data => this.setState({ recipe: data[0],recipe_list: data, loaded: true }))
       .catch(err => { console.log(err) });
   }
 
@@ -66,6 +59,8 @@ export default class Explore extends Component {
           </ScrollView>
           <Recipe
           recipe={this.state.recipe}
+          numStepThreads= {this.state.recipe.steps.length}
+          stepProgress= {new Array(this.state.recipe.steps.length).fill(0)}
           isOpen={this.state.recipeOpen}
           handleClose={this.closeRecipe}
           />
@@ -76,7 +71,7 @@ export default class Explore extends Component {
       return (
         <View style={[styles.container, styles.center]}>
         <ActivityIndicator size="large" color="#0000ff" />
-        </View>  
+        </View>
       );
     }
   }

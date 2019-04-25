@@ -97,388 +97,983 @@ export default class InstructionCard extends Component {
     }
   }
 
+  getSlicedArrays() {
+    var slicedArrays = []
+    let i;
+    for (i = 0; i < this.props.numStepThreads; i++) {
+      slicedArrays.push(this.props.recipe.steps[i].slice(this.props.stepProgress[i] ,this.props.recipe.steps[i].length));
+    }
+    return slicedArrays;
+  }
+
+  isRemainingTask() {
+    let i;
+    for (i = 0; i < this.props.numStepThreads; i++) {
+      if (this.props.stepProgress[i] !== this.props.recipe.steps[i].length) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   render() {
-    if ((this.props.ingredients.length > 0) && (this.props.recipe.steps.length > 1)) {
-      return (
-        <View style={styles.container} key={this.props.step}>
-          <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
-          <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
-          {
-            (this.props.time)
-            ?
-            <View>
-              <CountDown
-                until={this.getTimeNotice()}
-                onFinish={() => this.props.speak("Get ready, timer ends soon.")}
-                size={0}
-                timeToShow={[]}
-                timeLabels={{}}
-              />
-              <CountDown
-                style={styles.timer}
-                until={this.getTime()}
-                onFinish={() => this.props.handleTimer(this.props.step)}
-                size={35}
-                digitStyle={{backgroundColor: '#000'}}
-                digitTxtStyle={{color: '#FFF'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: 'MM', s: 'SS'}}
-              />
-            </View>
-            :
-            <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
-          }
-          <View style={styles.textContainer}>
-            <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
-          </View>
+    var stepArrays = this.getSlicedArrays();
+    var isTask = this.isRemainingTask(stepArrays);
 
-          {
-            this.props.ingredients.length > 0
-            ?
-            <View>
+    if (isTask) {
+      if (this.props.ingredients.length > 0) {
+        if (this.props.numStepThreads > 1) {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
               {
-                this.state.ingredientsVisible
+                (this.props.time)
                 ?
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
-                      <Text style={styles.menuText}>Multitask</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <IngredientList
-                    color='rgb(255,255,255)'
-                    ingredients={this.props.ingredients}
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
                   />
                 </View>
                 :
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
-                      <Text style={styles.menuText}>Multitask</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
               }
-              {
-                this.state.overviewVisible
-                ?
-                <View style={styles.dropdown}>
-                  <Overview
-                    steps={this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)}
-                  />
-                </View>
-                :
-                <View style={styles.dropdown}>
-                </View>
-              }
-            </View>
-            :
-            null
-          }
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
 
-          {/* {
-            this.props.recipe.steps[0][this.props.step].ingredients.length > 0
-            <View>
+              <View>
+                {
+                  this.state.ingredientsVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <IngredientList
+                      color='rgb(255,255,255)'
+                      ingredients={this.props.ingredients}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                {
+                  this.state.overviewVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Overview
+                      steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+                {
+                  this.state.multitaskVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Text>{this.props.recipe.steps[this.props.currentStepThread+1][0]}</Text>
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+              </View>
+            </View>
+          );
+        }
+        else {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
               {
-                this.state.ingredientsVisible
+                (this.props.time)
                 ?
-                <View style={styles.dropdown}>
-                  <IngredientList
-                    color='rgb(255,255,255)'
-                    ingredients={this.props.recipe.steps[0][this.props.step].ingredients}
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
                   />
                 </View>
                 :
-                null
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
               }
-            </View>
-            :
-            null
-          } */}
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
 
-          {/* {
-            this.props.recipe.steps[0][this.props.step].ingredients.length > 0
-            ?
-            <View>
+              <View>
+                {
+                  this.state.ingredientsVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <IngredientList
+                      color='rgb(255,255,255)'
+                      ingredients={this.props.ingredients}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                {
+                  this.state.overviewVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Overview
+                      steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+              </View>
+            </View>
+          );
+        }
+      }
+      else {
+        if (this.props.numStepThreads > 1) {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
               {
-                this.state.ingredientsVisible
+                (this.props.time)
                 ?
-                <View style={styles.dropdownDown}>
-                  <TouchableOpacity onPress={() => this.toggleDropdowns()}>
-                    <Text style={styles.ingredientHeader}>Ingredients</Text>
-                  </TouchableOpacity>
-                  <IngredientList
-                    color='rgb(190,192,196)'
-                    ingredients={this.props.recipe.steps[0][this.props.step].ingredients}
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
                   />
                 </View>
                 :
-                <View style={styles.dropdownUp}>
-                  <TouchableOpacity onPress={() => this.toggleDropdowns()}>
-                    <Text style={styles.ingredientHeader}>Ingredients</Text>
-                  </TouchableOpacity>
-                </View>
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
               }
-            </View>
-            :
-            null
-          } */}
-        </View>
-      );
-    }
-    else if (this.props.recipe.steps.length > 1) {
-      return (
-        <View style={styles.container} key={this.props.step}>
-          <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
-          <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
-          {
-            (this.props.time)
-            ?
-            <View>
-              <CountDown
-                until={this.getTimeNotice()}
-                onFinish={() => this.props.speak("Get ready, timer ends soon.")}
-                size={0}
-                timeToShow={[]}
-                timeLabels={{}}
-              />
-              <CountDown
-                style={styles.timer}
-                until={this.getTime()}
-                onFinish={() => this.props.handleTimer(this.props.step)}
-                size={35}
-                digitStyle={{backgroundColor: '#000'}}
-                digitTxtStyle={{color: '#FFF'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: 'MM', s: 'SS'}}
-              />
-            </View>
-            :
-            <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
-          }
-          <View style={styles.textContainer}>
-            <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
-          </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
 
-          {
-            this.props.ingredients.length > 0
-            ?
-            <View>
-              {
-                this.state.ingredientsVisible
-                ?
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
+              <View>
+                {
+                  this.state.overviewVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Overview
+                      steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+                    />
                   </View>
-                  <IngredientList
-                    color='rgb(255,255,255)'
-                    ingredients={this.props.ingredients}
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                {
+                  this.state.multitaskVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Text>{this.props.recipe.steps[this.props.currentStepThread+1][0]}</Text>
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+              </View>
+            </View>
+          );
+        }
+        else {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+              {
+                (this.props.time)
+                ?
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
                   />
                 </View>
                 :
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
               }
-              {
-                this.state.overviewVisible
-                ?
-                <View style={styles.dropdown}>
-                  <Overview
-                    steps={this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)}
-                  />
-                </View>
-                :
-                <View style={styles.dropdown}>
-                </View>
-              }
-            </View>
-            :
-            null
-          }
-        </View>
-      );
-    }
-    else if (this.props.ingredients.length > 0) {
-      return (
-        <View style={styles.container} key={this.props.step}>
-          <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
-          <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
-          {
-            (this.props.time)
-            ?
-            <View>
-              <CountDown
-                until={this.getTimeNotice()}
-                onFinish={() => this.props.speak("Get ready, timer ends soon.")}
-                size={0}
-                timeToShow={[]}
-                timeLabels={{}}
-              />
-              <CountDown
-                style={styles.timer}
-                until={this.getTime()}
-                onFinish={() => this.props.handleTimer(this.props.step)}
-                size={35}
-                digitStyle={{backgroundColor: '#000'}}
-                digitTxtStyle={{color: '#FFF'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: 'MM', s: 'SS'}}
-              />
-            </View>
-            :
-            <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
-          }
-          <View style={styles.textContainer}>
-            <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
-          </View>
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
 
-          {
-            this.props.ingredients.length > 0
-            ?
-            <View>
-              {
-                this.state.ingredientsVisible
-                ?
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
+              <View>
+                {
+                  this.state.overviewVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Overview
+                      steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+                    />
                   </View>
-                  <IngredientList
-                    color='rgb(255,255,255)'
-                    ingredients={this.props.ingredients}
-                  />
-                </View>
-                :
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
-                      <Text style={styles.menuText}>Ingredients</Text>
-                    </TouchableOpacity>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+                        <Text style={styles.menuText}>Coming Up</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                </View>
-              }
-              {
-                this.state.overviewVisible
-                ?
-                <View style={styles.dropdown}>
-                  <Overview
-                    steps={this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)}
-                  />
-                </View>
-                :
-                <View style={styles.dropdown}>
-                </View>
-              }
+                }
+              </View>
             </View>
-            :
-            null
-          }
-        </View>
-      );
+          );
+        }
+      }
     }
     else {
-      return (
-        <View style={styles.container} key={this.props.step}>
-          <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
-          <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
-          {
-            (this.props.time)
-            ?
-            <View>
-              <CountDown
-                until={this.getTimeNotice()}
-                onFinish={() => this.props.speak("Get ready, timer ends soon.")}
-                size={0}
-                timeToShow={[]}
-                timeLabels={{}}
-              />
-              <CountDown
-                style={styles.timer}
-                until={this.getTime()}
-                onFinish={() => this.props.handleTimer(this.props.step)}
-                size={35}
-                digitStyle={{backgroundColor: '#000'}}
-                digitTxtStyle={{color: '#FFF'}}
-                timeToShow={['M', 'S']}
-                timeLabels={{m: 'MM', s: 'SS'}}
-              />
-            </View>
-            :
-            <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
-          }
-          <View style={styles.textContainer}>
-            <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
-          </View>
-
-          {
-            this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length).length > 0
-            ?
-            <View>
+      if (this.props.ingredients.length > 0) {
+        if (this.props.numStepThreads > 1) {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
               {
-                this.state.overviewVisible
+                (this.props.time)
                 ?
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                  </View>
-                  <Overview
-                    steps={this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)}
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
                   />
                 </View>
                 :
-                <View style={styles.dropdown}>
-                  <View style={styles.menuContainer}>
-                    <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
-                      <Text style={styles.menuText}>Coming Up</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
               }
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
+
+              <View>
+                {
+                  this.state.ingredientsVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <IngredientList
+                      color='rgb(255,255,255)'
+                      ingredients={this.props.ingredients}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                {
+                  this.state.multitaskVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Text>{this.props.recipe.steps[this.props.currentStepThread+1][0]}</Text>
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+              </View>
             </View>
-            :
-            null
-          }
-        </View>
-      );
+          );
+        }
+        else {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+              {
+                (this.props.time)
+                ?
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
+                  />
+                </View>
+                :
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+              }
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
+
+              <View>
+                {
+                  this.state.ingredientsVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <IngredientList
+                      color='rgb(255,255,255)'
+                      ingredients={this.props.ingredients}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+                        <Text style={styles.menuText}>Ingredients</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+              </View>
+            </View>
+          );
+        }
+      }
+      else {
+        if (this.props.numStepThreads > 1) {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+              {
+                (this.props.time)
+                ?
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
+                  />
+                </View>
+                :
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+              }
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
+
+              <View>
+                {
+                  this.state.multitaskVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                    <Overview
+                      steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+                    />
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                    <View style={styles.menuContainer}>
+                      <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+                        <Text style={styles.menuText}>Multitask</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </View>
+                }
+                {
+                  this.state.multitaskVisible
+                  ?
+                  <View style={styles.dropdown}>
+                    <Text>{this.props.recipe.steps[this.props.currentStepThread+1][0]}</Text>
+                  </View>
+                  :
+                  <View style={styles.dropdown}>
+                  </View>
+                }
+              </View>
+            </View>
+          );
+        }
+        else {
+          return (
+            <View style={styles.container} key={this.props.step}>
+              <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+              <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+              {
+                (this.props.time)
+                ?
+                <View>
+                  <CountDown
+                    until={this.getTimeNotice()}
+                    onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+                    size={0}
+                    timeToShow={[]}
+                    timeLabels={{}}
+                  />
+                  <CountDown
+                    style={styles.timer}
+                    until={this.getTime()}
+                    onFinish={() => this.props.handleTimer(this.props.step)}
+                    size={35}
+                    digitStyle={{backgroundColor: '#000'}}
+                    digitTxtStyle={{color: '#FFF'}}
+                    timeToShow={['M', 'S']}
+                    timeLabels={{m: 'MM', s: 'SS'}}
+                  />
+                </View>
+                :
+                <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+              }
+              <View style={styles.textContainer}>
+                <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+              </View>
+            </View>
+          );
+        }
+      }
+    }
+
+    // if ((this.props.ingredients.length > 0) && (this.props.recipe.steps.length > 1)) {
+    //   return (
+    //     <View style={styles.container} key={this.props.step}>
+    //       <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+    //       <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+    //       {
+    //         (this.props.time)
+    //         ?
+    //         <View>
+    //           <CountDown
+    //             until={this.getTimeNotice()}
+    //             onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+    //             size={0}
+    //             timeToShow={[]}
+    //             timeLabels={{}}
+    //           />
+    //           <CountDown
+    //             style={styles.timer}
+    //             until={this.getTime()}
+    //             onFinish={() => this.props.handleTimer(this.props.step)}
+    //             size={35}
+    //             digitStyle={{backgroundColor: '#000'}}
+    //             digitTxtStyle={{color: '#FFF'}}
+    //             timeToShow={['M', 'S']}
+    //             timeLabels={{m: 'MM', s: 'SS'}}
+    //           />
+    //         </View>
+    //         :
+    //         <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+    //       }
+    //       <View style={styles.textContainer}>
+    //         <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+    //       </View>
+    //
+    //       {
+    //         this.props.ingredients.length > 0
+    //         ?
+    //         <View>
+    //           {
+    //             this.state.ingredientsVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+    //                   <Text style={styles.menuText}>Multitask</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //               <IngredientList
+    //                 color='rgb(255,255,255)'
+    //                 ingredients={this.props.ingredients}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleMultitask()}>
+    //                   <Text style={styles.menuText}>Multitask</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //             </View>
+    //           }
+    //           {
+    //             this.state.overviewVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <Overview
+    //                 steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //             </View>
+    //           }
+    //         </View>
+    //         :
+    //         null
+    //       }
+    //
+    //       {/* {
+    //         this.props.recipe.steps[0][this.props.step].ingredients.length > 0
+    //         <View>
+    //           {
+    //             this.state.ingredientsVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <IngredientList
+    //                 color='rgb(255,255,255)'
+    //                 ingredients={this.props.recipe.steps[0][this.props.step].ingredients}
+    //               />
+    //             </View>
+    //             :
+    //             null
+    //           }
+    //         </View>
+    //         :
+    //         null
+    //       } */}
+    //
+    //       {/* {
+    //         this.props.recipe.steps[0][this.props.step].ingredients.length > 0
+    //         ?
+    //         <View>
+    //           {
+    //             this.state.ingredientsVisible
+    //             ?
+    //             <View style={styles.dropdownDown}>
+    //               <TouchableOpacity onPress={() => this.toggleDropdowns()}>
+    //                 <Text style={styles.ingredientHeader}>Ingredients</Text>
+    //               </TouchableOpacity>
+    //               <IngredientList
+    //                 color='rgb(190,192,196)'
+    //                 ingredients={this.props.recipe.steps[0][this.props.step].ingredients}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdownUp}>
+    //               <TouchableOpacity onPress={() => this.toggleDropdowns()}>
+    //                 <Text style={styles.ingredientHeader}>Ingredients</Text>
+    //               </TouchableOpacity>
+    //             </View>
+    //           }
+    //         </View>
+    //         :
+    //         null
+    //       } */}
+    //     </View>
+    //   );
+    // }
+    // else if (this.props.recipe.steps.length > 1) {
+    //   return (
+    //     <View style={styles.container} key={this.props.step}>
+    //       <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+    //       <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+    //       {
+    //         (this.props.time)
+    //         ?
+    //         <View>
+    //           <CountDown
+    //             until={this.getTimeNotice()}
+    //             onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+    //             size={0}
+    //             timeToShow={[]}
+    //             timeLabels={{}}
+    //           />
+    //           <CountDown
+    //             style={styles.timer}
+    //             until={this.getTime()}
+    //             onFinish={() => this.props.handleTimer(this.props.step)}
+    //             size={35}
+    //             digitStyle={{backgroundColor: '#000'}}
+    //             digitTxtStyle={{color: '#FFF'}}
+    //             timeToShow={['M', 'S']}
+    //             timeLabels={{m: 'MM', s: 'SS'}}
+    //           />
+    //         </View>
+    //         :
+    //         <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+    //       }
+    //       <View style={styles.textContainer}>
+    //         <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+    //       </View>
+    //
+    //       {
+    //         this.props.ingredients.length > 0
+    //         ?
+    //         <View>
+    //           {
+    //             this.state.ingredientsVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //               <IngredientList
+    //                 color='rgb(255,255,255)'
+    //                 ingredients={this.props.ingredients}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //             </View>
+    //           }
+    //           {
+    //             this.state.overviewVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <Overview
+    //                 steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //             </View>
+    //           }
+    //         </View>
+    //         :
+    //         null
+    //       }
+    //     </View>
+    //   );
+    // }
+    // else if (this.props.ingredients.length > 0) {
+    //   return (
+    //     <View style={styles.container} key={this.props.step}>
+    //       <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+    //       <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+    //       {
+    //         (this.props.time)
+    //         ?
+    //         <View>
+    //           <CountDown
+    //             until={this.getTimeNotice()}
+    //             onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+    //             size={0}
+    //             timeToShow={[]}
+    //             timeLabels={{}}
+    //           />
+    //           <CountDown
+    //             style={styles.timer}
+    //             until={this.getTime()}
+    //             onFinish={() => this.props.handleTimer(this.props.step)}
+    //             size={35}
+    //             digitStyle={{backgroundColor: '#000'}}
+    //             digitTxtStyle={{color: '#FFF'}}
+    //             timeToShow={['M', 'S']}
+    //             timeLabels={{m: 'MM', s: 'SS'}}
+    //           />
+    //         </View>
+    //         :
+    //         <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+    //       }
+    //       <View style={styles.textContainer}>
+    //         <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+    //       </View>
+    //
+    //       {
+    //         this.props.ingredients.length > 0
+    //         ?
+    //         <View>
+    //           {
+    //             this.state.ingredientsVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //               <IngredientList
+    //                 color='rgb(255,255,255)'
+    //                 ingredients={this.props.ingredients}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //               <View style={styles.menuContainer}>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+    //                   <Text style={styles.menuText}>Coming Up</Text>
+    //                 </TouchableOpacity>
+    //                 <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleIngredients()}>
+    //                   <Text style={styles.menuText}>Ingredients</Text>
+    //                 </TouchableOpacity>
+    //               </View>
+    //             </View>
+    //           }
+    //           {
+    //             this.state.overviewVisible
+    //             ?
+    //             <View style={styles.dropdown}>
+    //               <Overview
+    //                 steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+    //               />
+    //             </View>
+    //             :
+    //             <View style={styles.dropdown}>
+    //             </View>
+    //           }
+    //         </View>
+    //         :
+    //         null
+    //       }
+    //     </View>
+    //   );
+    // }
+    // else {
+      // return (
+      //   <View style={styles.container} key={this.props.step}>
+      //     <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
+      //     <Text style={styles.title} numberOfLines={1}>{this.props.title}</Text>
+      //     {
+      //       (this.props.time)
+      //       ?
+      //       <View>
+      //         <CountDown
+      //           until={this.getTimeNotice()}
+      //           onFinish={() => this.props.speak("Get ready, timer ends soon.")}
+      //           size={0}
+      //           timeToShow={[]}
+      //           timeLabels={{}}
+      //         />
+      //         <CountDown
+      //           style={styles.timer}
+      //           until={this.getTime()}
+      //           onFinish={() => this.props.handleTimer(this.props.step)}
+      //           size={35}
+      //           digitStyle={{backgroundColor: '#000'}}
+      //           digitTxtStyle={{color: '#FFF'}}
+      //           timeToShow={['M', 'S']}
+      //           timeLabels={{m: 'MM', s: 'SS'}}
+      //         />
+      //       </View>
+      //       :
+      //       <Image key={this.props.step} source={{ uri: this.props.pic }} style={styles.image} />
+      //     }
+      //     <View style={styles.textContainer}>
+      //       <Text style={styles.step}>{this.props.instruction.replace(/\. /g,'.\n\n')}</Text>
+      //     </View>
+      //
+      //     {
+      //       this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length).length > 0
+      //       ?
+      //       <View>
+      //         {
+      //           this.state.overviewVisible
+      //           ?
+      //           <View style={styles.dropdown}>
+      //             <View style={styles.menuContainer}>
+      //               <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+      //                 <Text style={styles.menuText}>Coming Up</Text>
+      //               </TouchableOpacity>
+      //             </View>
+      //             <Overview
+      //               steps={[this.props.recipe.steps[0].slice(this.props.step, this.props.recipe.steps[0].length)]}
+      //             />
+      //           </View>
+      //           :
+      //           <View style={styles.dropdown}>
+      //             <View style={styles.menuContainer}>
+      //               <TouchableOpacity style={styles.menuItem} onPress={() => this.toggleOverview()}>
+      //                 <Text style={styles.menuText}>Coming Up</Text>
+      //               </TouchableOpacity>
+      //             </View>
+      //           </View>
+      //         }
+      //       </View>
+      //       :
+      //       null
+      //     }
+      //   </View>
+      // );
     }
   }
-}
 
 const styles = StyleSheet.create({
   container: {

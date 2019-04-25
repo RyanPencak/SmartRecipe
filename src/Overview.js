@@ -22,33 +22,48 @@ export default class Overview extends Component {
   getData(){
     this.data = []
     let i;
+    let j;
     for (i = 0; i < this.props.steps.length; i++) {
-      this.data.push({
-        title: "" + this.props.steps[i].instruction,
-        description: ''
-      })
+      let tempList = []
+      for (j = 0; j < this.props.steps[i].length; j++) {
+        tempList.push({
+          description: "" + this.props.steps[i][j].instruction
+        })
+      }
+      this.data.push(tempList)
+    }
+  }
+
+  renderTimelines() {
+    this.timelineList = [];
+    let i;
+    for (i = 0; i < this.props.steps.length; i++) {
+       this.timelineList.push(
+         <Timeline
+           data={this.data[i]}
+           circleSize={20}
+           circleColor='rgb(45,156,219)'
+           lineColor='rgb(45,156,219)'
+           descriptionStyle={{color:'black',fontSize: 20}}
+           showTime={false}
+           options={{
+             style:{paddingTop:30}
+           }}
+         />
+       );
     }
   }
 
   render() {
-    this.getData()
+    this.getData();
+    this.renderTimelines();
     return (
       <ScrollView style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
         >
-        <Timeline
-          data={this.data}
-          circleSize={20}
-          circleColor='rgb(45,156,219)'
-          lineColor='rgb(45,156,219)'
-          descriptionStyle={{color:'gray'}}
-          showTime={false}
-          options={{
-            style:{paddingTop:30}
-          }}
-        />
+        {this.timelineList}
       </ScrollView>
     );
   }
@@ -56,31 +71,15 @@ export default class Overview extends Component {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
+    flexDirection: 'column',
     marginLeft: 10,
     marginBottom: 10,
     height: height,
-    width: width*.95,
-  },
-  imageContainer: {
-    flex: 1,
-  },
-  image: {
-    borderRadius: 10,
-    ...StyleSheet.absoluteFillObject,
-  },
-  title: {
-    ...defaultStyles.text,
-    fontSize: 16,
-    marginTop: 4,
-  },
-  genre: {
-    ...defaultStyles.text,
-    color: '#BBBBBB',
-    fontSize: 14,
-    lineHeight: 18,
+    width: width*.8,
   },
   scrollContent: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    // flexDirection: 'row',
+    // flexWrap: 'wrap',
   },
 });

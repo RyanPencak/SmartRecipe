@@ -36,6 +36,9 @@ export default class Recipe extends Component {
       visible: this.props.isOpen,
       ingredientsOpen: false,
       overviewOpen: false,
+      currentStepThread: 0,
+      numStepThreads: this.props.numStepThreads,
+      stepProgress: this.props.stepProgress
     };
 
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
@@ -218,6 +221,8 @@ export default class Recipe extends Component {
 
   // Function showIngredients: sets ingredient visibility to true
   showIngredients() {
+    console.log(this.state.numStepThreads);
+    console.log(this.state.stepProgress);
     this.setState({
       ingredientsOpen: true
     });
@@ -276,6 +281,16 @@ export default class Recipe extends Component {
     });
   }
 
+  isRemainingTask() {
+    let i;
+    for (i = 0; i < this.props.numStepThreads; i++) {
+      if (this.state.stepProgress[i] !== this.props.recipe.steps[i].length) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   // Function generateCard: returns component for a recipe instruction card
   generateCard() {
     return (
@@ -293,8 +308,9 @@ export default class Recipe extends Component {
           speak={this.speak}
           pageLeft={this.pageLeft}
           pageRight={this.pageRight}
-          height={height}
-          width={width}
+          numStepThreads={this.state.numStepThreads}
+          stepProgress={this.state.stepProgress}
+          currentStepThread={this.state.currentStepThread}
         />
         {/* <View style={styles.navBar}>
           <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
@@ -386,7 +402,7 @@ export default class Recipe extends Component {
             </TouchableOpacity>
             <Text style={styles.header2} numberOfLines={1}>{this.props.recipe.title}</Text>
             <Overview
-              steps={this.props.recipe.steps[0]}
+              steps={this.props.recipe.steps}
             />
           </Animated.View>
         </View>
