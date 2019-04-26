@@ -72,6 +72,27 @@ export default class Recipe extends Component {
     });
   }
 
+  onSpeechPartialResults(e) {
+      console.log('[onSpeechPartialResults]', e.value);
+      let result = {
+          results: e.value,
+          resultlen: e.value[0].length,
+      };
+      if (Platform.OS === 'ios') {
+          this.silentVoiceStop(this);
+      }
+      this.setState(result);
+  }
+
+  silenceCheck(e) {
+      e._stopRecognizing();
+  }
+
+  silentVoiceStop(e) {
+      clearTimeout(window.silenceSetTimeout);
+      window.silenceSetTimeout = setTimeout(()=>{e.silenceCheck(e)}, 1000000000000000);
+  }
+
   // Function onSpeechRecognized: store state for speech recognized
   onSpeechRecognized(e) {
     this.setState({
@@ -156,10 +177,169 @@ export default class Recipe extends Component {
         for (i = 0; i < this.props.recipe.ingredients.length; i++) {
           let current = this.props.recipe.ingredients[i][1].toLowerCase()
           if (current.includes(ingredientToFind)) {
+            // this.speakIngredientAmount(this.props.recipe.ingredients[i][0]);
             this.speak(this.props.recipe.ingredients[i][0]);
           }
         }
       }
+    }
+  }
+
+  speakIngredientAmount(ingredientAmount) {
+    if (ingredientAmount.includes("/")) {
+      let convertedText = "";
+      let amount = ingredientAmount.split("/");
+      let first = amount[0];
+      let second = amount[1];
+      let numerator;
+      let denominator;
+      let precedingNumber;
+      let unit;
+      first = first.split(" ");
+      second = second.split(" ");
+
+      if (first.length > 1) {
+        precedingNumber = first[0];
+        numerator = first[1];
+        convertedText = convertedText + this.numberToWord(precedingNumber) + " and ";
+      }
+      else {
+        numerator = first[0];
+      }
+
+      denominator = second[0];
+      unit = second[1];
+
+      if (numerator == "1") {
+        denominator = this.numberToDenom(denominator);
+      }
+      else {
+        denominator = this.numberToDenomPlural(denominator);
+      }
+
+      if (numerator === false || demonimator === false) {
+        this.speak(ingredientAmount);
+      }
+      else {
+        this.speak(convertedText);
+      }
+
+      numerator = this.numberToWord(numerator);
+      convertedText = convertedText + numerator + " " + denominator;
+    }
+    else {
+      this.speak(ingredientAmount);
+    }
+  }
+
+  numberToWord(number) {
+    if (number == "1") {
+      return "one";
+    }
+    else if (number == "2") {
+      return "two";
+    }
+  }
+
+  numberToDenom(number, greaterThanOne) {
+    if (number == "2") {
+      return "halve";
+    }
+    else if (number == "3") {
+      return "third";
+    }
+    else if (number == "4") {
+      return "fourth";
+    }
+    else if (number == "5") {
+      return "fifth";
+    }
+    else if (number == "6") {
+      return "sixth";
+    }
+    else if (number == "7") {
+      return "seventh";
+    }
+    else if (number == "8") {
+      return "eighth";
+    }
+    else if (number == "9") {
+      return "ninth";
+    }
+    else if (number == "10") {
+      return "tenth";
+    }
+    else if (number == "11") {
+      return "eleventh";
+    }
+    else if (number == "12") {
+      return "twelfth";
+    }
+    else if (number == "13") {
+      return "thirteenth";
+    }
+    else if (number == "14") {
+      return "fourteenth";
+    }
+    else if (number == "15") {
+      return "fifteenth";
+    }
+    else if (number == "16") {
+      return "sixteenth";
+    }
+    else {
+      return false;
+    }
+  }
+
+  numberToDenomPlural(number, greaterThanOne) {
+    if (number == "2") {
+      return "halves";
+    }
+    else if (number == "3") {
+      return "thirds";
+    }
+    else if (number == "4") {
+      return "fourths";
+    }
+    else if (number == "5") {
+      return "fifths";
+    }
+    else if (number == "6") {
+      return "sixths";
+    }
+    else if (number == "7") {
+      return "sevenths";
+    }
+    else if (number == "8") {
+      return "eighths";
+    }
+    else if (number == "9") {
+      return "ninths";
+    }
+    else if (number == "10") {
+      return "tenths";
+    }
+    else if (number == "11") {
+      return "elevenths";
+    }
+    else if (number == "12") {
+      return "twelfths";
+    }
+    else if (number == "13") {
+      return "thirteenths";
+    }
+    else if (number == "14") {
+      return "fourteenths";
+    }
+    else if (number == "15") {
+      return "fifteenths";
+    }
+    else if (number == "16") {
+      return "sixteenths";
+    }
+    else {
+      return false;
     }
   }
 
@@ -203,6 +383,8 @@ export default class Recipe extends Component {
 
   // Function speak: takes in a string input and speaks it
   speak(input) {
+    // Tts.setIgnoreSilentSwitch("ignore");
+    // Tts.setDucking(true);
     Tts.setDefaultRate(0.45);
     Tts.setDefaultPitch(0.9);
     Tts.setDefaultVoice('com.apple.ttsbundle.Samantha-compact');
@@ -252,6 +434,7 @@ export default class Recipe extends Component {
   // Function pageLeft: decrements recipe step and speaks previous step
   pageLeft() {
     if (this.state.step > 1) {
+      Tts.stop();
       this.setState({
         step: this.state.step - 1
       }, () => {
@@ -263,6 +446,7 @@ export default class Recipe extends Component {
   // Function pageRight: increments recipe step and speaks next step
   pageRight() {
     if (this.state.step < this.props.recipe.steps[0].length) {
+      Tts.stop();
       this.setState({
         step: this.state.step + 1
       }, () => {
@@ -291,63 +475,6 @@ export default class Recipe extends Component {
     return true;
   }
 
-  // Function generateCard: returns component for a recipe instruction card
-  generateCard() {
-    return (
-      <View style={styles.card}>
-        <InstructionCard
-          recipe={this.props.recipe}
-          title={this.parse('Step %s', this.state.step)}
-          pic={this.props.recipe.steps[0][this.state.step - 1].img}
-          time={this.props.recipe.steps[0][this.state.step - 1].time}
-          instruction={this.props.recipe.steps[0][this.state.step - 1].instruction}
-          ingredients={this.props.recipe.steps[0][this.state.step - 1].ingredients}
-          step={this.state.step}
-          totalSteps={this.props.recipe.steps[0].length}
-          handleTimer={this.handleTimer}
-          speak={this.speak}
-          pageLeft={this.pageLeft}
-          pageRight={this.pageRight}
-          numStepThreads={this.state.numStepThreads}
-          stepProgress={this.state.stepProgress}
-          currentStepThread={this.state.currentStepThread}
-        />
-        {/* <View style={styles.navBar}>
-          <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
-          {
-            this.state.step > 1
-            ?
-            <TouchableOpacity style={styles.button} onPress={() => this.pageLeft()}>
-              <Image style={styles.navButtonImage} source={require('./assets/previous_icon.png')}/>
-              <Text style={styles.startButtonText}>Previous</Text>
-            </TouchableOpacity>
-            :
-            null
-          }
-          </TouchableOpacity> */}
-          {/* <TouchableOpacity style={styles.button} onPress={() => this.showIngredients()}>
-            <Image style={styles.ingredientButtonImage} source={require('./assets/list_icon.png')}/>
-            <Text style={styles.startButtonText}>Ingredients</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.button} onPress={() => this.showOverview()}>
-            <Image style={styles.overviewButtonImage} source={require('./assets/overview_icon.png')}/>
-            <Text style={styles.startButtonText}>Overview</Text>
-          </TouchableOpacity> */}
-          {/* {
-            this.state.step < this.props.recipe.steps[0].length
-            ?
-            <TouchableOpacity style={styles.button} onPress={() => this.pageRight()}>
-              <Image style={styles.navButtonImage} source={require('./assets/next_icon.png')}/>
-              <Text style={styles.startButtonText}>Next</Text>
-            </TouchableOpacity>
-            :
-            null
-          }
-        </View> */}
-      </View>
-    )
-  }
-
   // Function listIngredients: returns a listview of ingredients
   listIngredients() {
     let i;
@@ -358,6 +485,7 @@ export default class Recipe extends Component {
 
   // Function closeWindow: ends Voice and closes page
   closeWindow() {
+    Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
     this.props.handleClose()
   }
@@ -422,7 +550,10 @@ export default class Recipe extends Component {
               </TouchableOpacity>
 
               <View style={styles.card}>
-                <Image source={{ uri: this.props.recipe.titleImg }} style={styles.stepImage} />
+                <View style={styles.centerImage}>
+                  <Image source={{ uri: this.props.recipe.titleImg }} style={styles.stepImage} />
+                </View>
+                <Text style={styles.credits}>{this.props.recipe.photocreds}</Text>
                 <View style={styles.indent}>
                   <Text style={styles.header2}>{this.props.recipe.title}</Text>
                   <Text style={styles.header3}>{'Time: '}{this.props.recipe.time}</Text>
@@ -482,7 +613,22 @@ export default class Recipe extends Component {
                 }
               </View>
 
-              {this.generateCard()}
+              <InstructionCard
+                recipe={this.props.recipe}
+                pic={this.props.recipe.steps[0][this.state.step - 1].img}
+                time={this.props.recipe.steps[0][this.state.step - 1].time}
+                instruction={this.props.recipe.steps[0][this.state.step - 1].instruction}
+                ingredients={this.props.recipe.steps[0][this.state.step - 1].ingredients}
+                step={this.state.step}
+                totalSteps={this.props.recipe.steps[0].length}
+                handleTimer={this.handleTimer}
+                speak={this.speak}
+                pageLeft={this.pageLeft}
+                pageRight={this.pageRight}
+                numStepThreads={this.state.numStepThreads}
+                stepProgress={this.state.stepProgress}
+                currentStepThread={this.state.currentStepThread}
+              />
 
             </Animated.View>
           </View>
@@ -496,11 +642,10 @@ export default class Recipe extends Component {
 const styles = StyleSheet.create({
   container: {
     ...StyleSheet.absoluteFillObject,
-    // justifyContent: 'flex-end',
     backgroundColor: 'transparent',
   },
   indent: {
-    marginLeft: 20
+    marginLeft: 10
   },
   modal: {
     height: height,
@@ -541,12 +686,12 @@ const styles = StyleSheet.create({
   smallnavbuttonleft: {
     position: 'absolute',
     left: 15,
-    top: 150,
+    top: 80,
   },
   smallnavbuttonright: {
     position: 'absolute',
     left: width-50,
-    top: 150,
+    top: 80,
   },
   smallnavbuttonimage: {
     borderRadius: 10,
@@ -557,7 +702,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginBottom: 20,
-    zIndex: 9999
   },
   ingredientButtonImage: {
     borderRadius: 0,
@@ -600,8 +744,8 @@ const styles = StyleSheet.create({
   },
   stepImage: {
     borderRadius: 10,
-    height: height*.4,
-    width: width,
+    height: height*.3,
+    width: width*.9,
     marginTop: 20,
     marginBottom: 10,
   },
@@ -611,13 +755,17 @@ const styles = StyleSheet.create({
     height: height,
     width: width
   },
+  centerImage: {
+    alignItems: 'center',
+  },
   title: {
     ...defaultStyles.header,
   },
   header2: {
+    marginTop: 10,
     marginLeft: 10,
     fontFamily: 'Avenir',
-    fontSize: 30,
+    fontSize: 25,
   },
   header3: {
     marginLeft: 10,
@@ -628,4 +776,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
   },
+  credits: {
+    fontSize: 8,
+    textAlign: "right",
+    marginRight: 20
+  }
 });

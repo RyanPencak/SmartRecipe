@@ -14,6 +14,11 @@ export const defaultStyles = {
     fontFamily: 'Avenir',
     fontSize: 20,
   },
+  header4: {
+    marginLeft: 10,
+    fontFamily: 'Avenir',
+    fontSize: 18,
+  },
   text: {
     fontFamily: 'Avenir',
   }

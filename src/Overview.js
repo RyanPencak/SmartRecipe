@@ -27,7 +27,7 @@ export default class Overview extends Component {
       let tempList = []
       for (j = 0; j < this.props.steps[i].length; j++) {
         tempList.push({
-          description: "" + this.props.steps[i][j].instruction
+          title: "" + this.props.steps[i][j].instruction
         })
       }
       this.data.push(tempList)
@@ -41,13 +41,14 @@ export default class Overview extends Component {
        this.timelineList.push(
          <Timeline
            data={this.data[i]}
-           circleSize={20}
+           circleSize={10}
            circleColor='rgb(45,156,219)'
            lineColor='rgb(45,156,219)'
-           descriptionStyle={{color:'black',fontSize: 20}}
+           titleStyle={{color:'black',fontSize: 16}}
            showTime={false}
+           renderFullLine={false}
            options={{
-             style:{paddingTop:30}
+             style:{paddingTop:10}
            }}
          />
        );
@@ -58,7 +59,8 @@ export default class Overview extends Component {
     this.getData();
     this.renderTimelines();
     return (
-      <ScrollView style={styles.container}
+      <ScrollView
+        style={styles.container}
         contentContainerStyle={styles.scrollContent}
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
@@ -71,15 +73,12 @@ export default class Overview extends Component {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexDirection: 'column',
     marginLeft: 10,
     marginBottom: 10,
     height: height,
-    width: width*.8,
+    width: width*.95,
   },
   scrollContent: {
-    // flexDirection: 'row',
-    // flexWrap: 'wrap',
+    flexGrow: 1
   },
 });

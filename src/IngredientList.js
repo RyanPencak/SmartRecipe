@@ -25,7 +25,6 @@ export default class IngredientList extends Component {
     for (i = 0; i < this.props.ingredients.length; i++) {
       this.data.push({
         title: "\u2022 " + this.props.ingredients[i][0] + " " + this.props.ingredients[i][1],
-        description: ''
       })
     }
   }
@@ -45,7 +44,7 @@ export default class IngredientList extends Component {
             circleColor={this.props.color}
             lineColor={this.props.color}
             showTime={false}
-            descriptionStyle={{color:'gray'}}
+            descriptionStyle={{color:'black'}}
             options={{
               style:{paddingTop:30}
             }}
@@ -57,33 +56,11 @@ export default class IngredientList extends Component {
 }
 
 const styles = StyleSheet.create({
-  bullet: {
-    fontSize: 20,
-    marginTop: 20,
-  },
   container: {
     marginLeft: 10,
     marginBottom: 10,
     height: height,
     width: width*.95,
-  },
-  imageContainer: {
-    flex: 1,
-  },
-  image: {
-    borderRadius: 10,
-    ...StyleSheet.absoluteFillObject,
-  },
-  title: {
-    ...defaultStyles.text,
-    fontSize: 16,
-    marginTop: 4,
-  },
-  genre: {
-    ...defaultStyles.text,
-    color: '#BBBBBB',
-    fontSize: 14,
-    lineHeight: 18,
   },
   scrollContent: {
     flexDirection: 'row',
