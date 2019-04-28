@@ -27,13 +27,6 @@ export default class InstructionCard extends Component {
     };
   }
 
-  // toggleDropdowns() {
-  //   this.setState({
-  //     ingredientsVisible: !this.state.ingredientsVisible,
-  //     multitaskVisible: !this.state.multitaskVisible
-  //   });
-  // }
-
   toggleOverview() {
     this.setState({
       overviewVisible: !this.state.overviewVisible,
@@ -219,7 +212,7 @@ export default class InstructionCard extends Component {
 
   render() {
     return (
-      <View style={[styles.container, styles.card]} key={this.props.step}>
+      <View style={styles.container} key={this.props.step}>
         <Progress.Bar progress={this.props.step / this.props.totalSteps} width={200} />
         {
           (this.props.time)
@@ -305,10 +298,11 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
   },
   menuItem: {
-    backgroundColor: "#D3D3D3",
+    backgroundColor: "#E8E8E8",
   },
   menuText: {
-    fontSize: 20,
+    fontSize: 18,
+    color: "#252728",
     padding: 5,
   },
   image: {
@@ -341,17 +335,6 @@ const styles = StyleSheet.create({
     fontFamily: 'Avenir',
     fontSize: 25,
     textAlign: 'center',
-  },
-  buttonBar: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'space-around',
-  },
-  button: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 20
   },
   dropdown: {
     height: height

@@ -172,13 +172,12 @@ export default class Recipe extends Component {
       let ingredient = find.split(" ");
       if (ingredient[1]) {
         let ingredientToFind = ingredient[1];
-        console.log(ingredientToFind);
-        let i;
-        for (i = 0; i < this.props.recipe.ingredients.length; i++) {
-          let current = this.props.recipe.ingredients[i][1].toLowerCase()
-          if (current.includes(ingredientToFind)) {
-            // this.speakIngredientAmount(this.props.recipe.ingredients[i][0]);
-            this.speak(this.props.recipe.ingredients[i][0]);
+        let ingredientToFind_plural = ingredient[1] + 's';
+        for (let i = 0; i < this.props.recipe.ingredients.length; i++) {
+          let current = this.props.recipe.ingredients[i][1].toLowerCase();
+          if (current.includes(ingredientToFind) || current.includes(ingredientToFind_plural)) {
+            this.speakIngredientAmount(this.props.recipe.ingredients[i][0]);
+            // this.speak(this.props.recipe.ingredients[i][0]);
           }
         }
       }
@@ -210,22 +209,21 @@ export default class Recipe extends Component {
       denominator = second[0];
       unit = second[1];
 
-      if (numerator == "1") {
-        denominator = this.numberToDenom(denominator);
-      }
-      else {
-        denominator = this.numberToDenomPlural(denominator);
+      denominator = this.numberToDenom(denominator);
+
+      if (numerator != "1") {
+        denominator = denominator + 's'
       }
 
-      if (numerator === false || demonimator === false) {
+      numerator = this.numberToWord(numerator);
+      convertedText = convertedText + numerator + " " + denominator + " " + unit;
+
+      if (numerator === false || denominator === false) {
         this.speak(ingredientAmount);
       }
       else {
         this.speak(convertedText);
       }
-
-      numerator = this.numberToWord(numerator);
-      convertedText = convertedText + numerator + " " + denominator;
     }
     else {
       this.speak(ingredientAmount);
@@ -239,9 +237,51 @@ export default class Recipe extends Component {
     else if (number == "2") {
       return "two";
     }
+    else if (number == "3") {
+      return "three";
+    }
+    else if (number == "4") {
+      return "four";
+    }
+    else if (number == "5") {
+      return "five";
+    }
+    else if (number == "6") {
+      return "six";
+    }
+    else if (number == "7") {
+      return "seven";
+    }
+    else if (number == "8") {
+      return "eight";
+    }
+    else if (number == "9") {
+      return "nine";
+    }
+    else if (number == "10") {
+      return "ten";
+    }
+    else if (number == "11") {
+      return "eleven";
+    }
+    else if (number == "12") {
+      return "twelve";
+    }
+    else if (number == "13") {
+      return "thirteen";
+    }
+    else if (number == "14") {
+      return "fourteen";
+    }
+    else if (number == "15") {
+      return "fifteen";
+    }
+    else {
+      return false;
+    }
   }
 
-  numberToDenom(number, greaterThanOne) {
+  numberToDenom(number) {
     if (number == "2") {
       return "halve";
     }
@@ -286,57 +326,6 @@ export default class Recipe extends Component {
     }
     else if (number == "16") {
       return "sixteenth";
-    }
-    else {
-      return false;
-    }
-  }
-
-  numberToDenomPlural(number, greaterThanOne) {
-    if (number == "2") {
-      return "halves";
-    }
-    else if (number == "3") {
-      return "thirds";
-    }
-    else if (number == "4") {
-      return "fourths";
-    }
-    else if (number == "5") {
-      return "fifths";
-    }
-    else if (number == "6") {
-      return "sixths";
-    }
-    else if (number == "7") {
-      return "sevenths";
-    }
-    else if (number == "8") {
-      return "eighths";
-    }
-    else if (number == "9") {
-      return "ninths";
-    }
-    else if (number == "10") {
-      return "tenths";
-    }
-    else if (number == "11") {
-      return "elevenths";
-    }
-    else if (number == "12") {
-      return "twelfths";
-    }
-    else if (number == "13") {
-      return "thirteenths";
-    }
-    else if (number == "14") {
-      return "fourteenths";
-    }
-    else if (number == "15") {
-      return "fifteenths";
-    }
-    else if (number == "16") {
-      return "sixteenths";
     }
     else {
       return false;

@@ -42,8 +42,8 @@ export default class Overview extends Component {
          <Timeline
            data={this.data[i]}
            circleSize={10}
-           circleColor='rgb(45,156,219)'
-           lineColor='rgb(45,156,219)'
+           circleColor='rgb(227,62,36)'
+           lineColor='rgb(227,62,36)'
            titleStyle={{color:'black',fontSize: 16}}
            showTime={false}
            renderFullLine={false}

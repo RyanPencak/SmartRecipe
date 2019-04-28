@@ -70,7 +70,7 @@ export default class Explore extends Component {
     else {
       return (
         <View style={[styles.container, styles.center]}>
-        <ActivityIndicator size="large" color="#0000ff" />
+        <ActivityIndicator size="large" color="#E33E24" />
         </View>
       );
     }
