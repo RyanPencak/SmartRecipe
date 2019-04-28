@@ -36,14 +36,13 @@ export default class Overview extends Component {
 
   renderTimelines() {
     this.timelineList = [];
-    let i;
-    for (i = 0; i < this.props.steps.length; i++) {
+    for (let i = 0; i < this.props.steps.length; i++) {
        this.timelineList.push(
          <Timeline
            data={this.data[i]}
            circleSize={10}
-           circleColor='rgb(227,62,36)'
-           lineColor='rgb(227,62,36)'
+           circleColor='rgb(45,156,219)'
+           lineColor='rgb(45,156,219)'
            titleStyle={{color:'black',fontSize: 16}}
            showTime={false}
            renderFullLine={false}
@@ -79,6 +78,6 @@ const styles = StyleSheet.create({
     width: width*.95,
   },
   scrollContent: {
-    flexGrow: 1
+    // flexGrow: 1
   },
 });

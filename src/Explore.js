@@ -26,10 +26,20 @@ export default class Explore extends Component {
       .catch(err => { console.log(err) });
   }
 
+  getTotalSteps(current_recipe) {
+    let total = 0;
+    for (let i=0; i<current_recipe.steps.length; i++) {
+      total += current_recipe.steps[i].length;
+    }
+    return total;
+  }
+
   openRecipe = (recipe) => {
+    var total = this.getTotalSteps(recipe);
     this.setState({
       recipeOpen: true,
       recipe: recipe,
+      totalSteps: total
     });
   }
 
@@ -59,8 +69,9 @@ export default class Explore extends Component {
           </ScrollView>
           <Recipe
           recipe={this.state.recipe}
-          numStepThreads= {this.state.recipe.steps.length}
-          stepProgress= {new Array(this.state.recipe.steps.length).fill(0)}
+          totalSteps={this.state.totalSteps}
+          numStepThreads={this.state.recipe.steps.length}
+          stepProgress={new Array(this.state.recipe.steps.length).fill(0)}
           isOpen={this.state.recipeOpen}
           handleClose={this.closeRecipe}
           />

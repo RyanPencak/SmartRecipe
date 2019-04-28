@@ -28,7 +28,8 @@ export default class Recipe extends Component {
     super(props);
 
     this.state = {
-      step: 0,
+      stepCounter: 0,
+      currentStepThread: 0,
       recognized: '',
       started: '',
       results: [],
@@ -36,9 +37,7 @@ export default class Recipe extends Component {
       visible: this.props.isOpen,
       ingredientsOpen: false,
       overviewOpen: false,
-      currentStepThread: 0,
-      numStepThreads: this.props.numStepThreads,
-      stepProgress: this.props.stepProgress
+      stepProgress: []
     };
 
     Voice.onSpeechStart = this.onSpeechStart.bind(this);
@@ -51,7 +50,7 @@ export default class Recipe extends Component {
   componentWillReceiveProps(nextProps) {
     if (!this.props.isOpen && nextProps.isOpen) {
       this.setState({
-        step: 0
+        stepCounter: 0
       })
       this.animateOpen();
     }
@@ -140,7 +139,7 @@ export default class Recipe extends Component {
     }
     if (this.state.results[0] !== undefined){
       if (this.state.results[0].includes("repeat") || this.state.results[0].includes("Repeat")){
-        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
+        this.speak(this.props.recipe.steps[0][this.state.stepCounter-1].instruction);
         Voice.start('en-US');
       }
     }
@@ -184,6 +183,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function speakIngredientAmount: parse fractions to words for voice assistant
   speakIngredientAmount(ingredientAmount) {
     if (ingredientAmount.includes("/")) {
       let convertedText = "";
@@ -230,6 +230,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function numberToWord: convert number to word
   numberToWord(number) {
     if (number == "1") {
       return "one";
@@ -281,6 +282,7 @@ export default class Recipe extends Component {
     }
   }
 
+  // Function numberToDenom: convert number to denominator word
   numberToDenom(number) {
     if (number == "2") {
       return "halve";
@@ -380,20 +382,8 @@ export default class Recipe extends Component {
     Tts.speak(input);
   }
 
-  // Function startRecipe: begins voice assistant and starts speech recognition
-  startRecipe() {
-    this.setState({
-      step: this.state.step + 1
-    }, () => {
-      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0][0].instruction));
-      this._startRecognition();
-    });
-  }
-
   // Function showIngredients: sets ingredient visibility to true
   showIngredients() {
-    console.log(this.state.numStepThreads);
-    console.log(this.state.stepProgress);
     this.setState({
       ingredientsOpen: true
     });
@@ -420,48 +410,14 @@ export default class Recipe extends Component {
     });
   }
 
-  // Function pageLeft: decrements recipe step and speaks previous step
-  pageLeft() {
-    if (this.state.step > 1) {
-      Tts.stop();
-      this.setState({
-        step: this.state.step - 1
-      }, () => {
-        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
-      });
-    }
-  }
-
-  // Function pageRight: increments recipe step and speaks next step
-  pageRight() {
-    if (this.state.step < this.props.recipe.steps[0].length) {
-      Tts.stop();
-      this.setState({
-        step: this.state.step + 1
-      }, () => {
-        this.speak(this.props.recipe.steps[0][this.state.step-1].instruction);
-      });
-    }
-  }
-
   // Function handleTimer: called when timers end in InstructionCard
   handleTimer = (step) => {
     this.setState({
-      step: step + 1
+      stepCounter: step + 1
     }, () => {
       Voice.start('en-US');
       this.speak(this.props.recipe.steps[0][step].instruction);
     });
-  }
-
-  isRemainingTask() {
-    let i;
-    for (i = 0; i < this.props.numStepThreads; i++) {
-      if (this.state.stepProgress[i] !== this.props.recipe.steps[i].length) {
-        return false;
-      }
-    }
-    return true;
   }
 
   // Function listIngredients: returns a listview of ingredients
@@ -477,6 +433,162 @@ export default class Recipe extends Component {
     Tts.stop();
     Voice.destroy().then(Voice.removeAllListeners);
     this.props.handleClose()
+  }
+
+  // Function startRecipe: begins voice assistant and starts speech recognition
+  startRecipe() {
+    let updatedStepProgress = this.props.stepProgress.slice();
+    updatedStepProgress[this.props.currentStepThread] += 1;
+    this.setState({
+      currentStepThread: 0,
+      stepCounter: this.state.stepCounter + 1,
+      stepProgress: updatedStepProgress,
+      totalSteps: this.props.totalSteps,
+      numStepThreads: this.props.numStepThreads
+    }, () => {
+      this.speak(this.parse("Lets start cooking %s. First, %s", this.props.recipe.title, this.props.recipe.steps[0][0].instruction));
+      this._startRecognition();
+      console.log("Step Counter: " + this.state.stepCounter);
+      console.log("Current Step Thread: " + this.state.currentStepThread);
+      console.log(this.state.stepProgress);
+      console.log("Total Steps: " + this.state.totalSteps);
+      console.log("Number of Step Threads: " + this.state.numStepThreads);
+    });
+  }
+
+  // Function pageLeft: decrements recipe step and speaks previous step
+  pageLeft() {
+    if (this.state.stepCounter > 1) {
+      Tts.stop();
+      if (this.state.stepProgress[this.state.currentStepThread] > 0) {
+        let updatedStepProgress = this.state.stepProgress.slice();
+        updatedStepProgress[this.state.currentStepThread] -= 1;
+        this.setState({
+          stepCounter: this.state.stepCounter - 1,
+          stepProgress: updatedStepProgress
+        }, () => {
+          this.speak(this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].instruction);
+          console.log("Step Counter: " + this.state.stepCounter);
+          console.log("Current Step Thread: " + this.state.currentStepThread);
+          console.log(this.state.stepProgress);
+          console.log("Total Steps: " + this.state.totalSteps);
+          console.log("Number of Step Threads: " + this.state.numStepThreads);
+        });
+      }
+      else {
+        this.setState({
+          stepCounter: this.state.stepCounter - 1,
+          currentStepThread: this.state.currentStepThread - 1
+        }, () => {
+          this.speak(this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].instruction);
+          console.log("Step Counter: " + this.state.stepCounter);
+          console.log("Current Step Thread: " + this.state.currentStepThread);
+          console.log(this.state.stepProgress);
+          console.log("Total Steps: " + this.state.totalSteps);
+          console.log("Number of Step Threads: " + this.state.numStepThreads);
+        });
+      }
+    }
+
+    // if (this.state.stepCounter > 1) {
+    //   Tts.stop();
+    //   this.setState({
+    //     stepCounter: this.state.stepCounter - 1
+    //   }, () => {
+    //     this.speak(this.props.recipe.steps[0][this.state.stepCounter-1].instruction);
+    //     console.log("Step Counter: " + this.state.stepCounter);
+    //     console.log("Current Step Thread: " + this.state.currentStepThread);
+    //     console.log(this.state.stepProgress);
+    //     console.log("Total Steps: " + this.state.totalSteps);
+    //     console.log("Number of Step Threads: " + this.state.numStepThreads);
+    //   });
+    // }
+  }
+
+  // Function pageRight: increments recipe step and speaks next step
+  pageRight() {
+    if (this.isRemainingTask(this.state.currentStepThread)) {
+      Tts.stop();
+      if (this.state.stepProgress[this.state.currentStepThread] < this.props.recipe.steps[this.state.currentStepThread].length - 1) {
+        let updatedStepProgress = this.state.stepProgress.slice();
+        updatedStepProgress[this.state.currentStepThread] += 1;
+        this.setState({
+          stepCounter: this.state.stepCounter + 1,
+          stepProgress: updatedStepProgress
+        }, () => {
+          this.speak(this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].instruction);
+          console.log("Step Counter: " + this.state.stepCounter);
+          console.log("Current Step Thread: " + this.state.currentStepThread);
+          console.log(this.state.stepProgress);
+          console.log("Total Steps: " + this.state.totalSteps);
+          console.log("Number of Step Threads: " + this.state.numStepThreads);
+        });
+      }
+      else {
+        let nextStepThread = this.getNextStepThread();
+        let updatedStepProgress = this.state.stepProgress.slice();
+        this.setState({
+          stepCounter: this.state.stepCounter + 1,
+          currentStepThread: nextStepThread,
+        }, () => {
+          this.speak(this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].instruction);
+          console.log("Step Counter: " + this.state.stepCounter);
+          console.log("Current Step Thread: " + this.state.currentStepThread);
+          console.log(this.state.stepProgress);
+          console.log("Total Steps: " + this.state.totalSteps);
+          console.log("Number of Step Threads: " + this.state.numStepThreads);
+        });
+      }
+    }
+
+    // if (this.state.stepCounter < this.props.recipe.steps[0].length) {
+    //   Tts.stop();
+    //   this.setState({
+    //     stepCounter: this.state.stepCounter + 1
+    //   }, () => {
+    //     this.speak(this.props.recipe.steps[0][this.state.stepCounter-1].instruction);
+    //     console.log("Step Counter: " + this.state.stepCounter);
+    //     console.log("Current Step Thread: " + this.state.currentStepThread);
+    //     console.log(this.state.stepProgress);
+    //     console.log("Total Steps: " + this.state.totalSteps);
+    //     console.log("Number of Step Threads: " + this.state.numStepThreads);
+    //   });
+    // }
+  }
+
+  multitaskRight = () => {
+    let updatedStepProgress = this.state.stepProgress.slice();
+    updatedStepProgress[this.state.currentStepThread+1] += 1;
+    this.setState({
+      stepCounter: this.state.stepCounter + 1,
+      stepProgress: updatedStepProgress
+    });
+  }
+
+  multitaskLeft = () => {
+    let updatedStepProgress = this.state.stepProgress.slice();
+    updatedStepProgress[this.state.currentStepThread+1] -= 1;
+    this.setState({
+      stepCounter: this.state.stepCounter - 1,
+      stepProgress: updatedStepProgress
+    });
+  }
+
+  getNextStepThread() {
+    for (let i = this.state.currentStepThread+1; i < this.state.numStepThreads; i++) {
+      if (this.state.stepProgress[i] < this.props.recipe.steps[i].length) {
+        return (i);
+      }
+    }
+  }
+
+  isRemainingTask(thread) {
+    for (let i = thread; i < this.props.numStepThreads; i++) {
+      if (this.state.stepProgress[i] < this.props.recipe.steps[i].length) {
+        return true;
+      }
+    }
+    return false;
   }
 
   render() {
@@ -526,7 +638,7 @@ export default class Recipe extends Component {
       );
     }
     else {
-      if (this.state.step === 0) {
+      if (this.state.stepCounter === 0) {
         return (
           <View style={styles.container}>
             <Animated.View
@@ -583,7 +695,7 @@ export default class Recipe extends Component {
               </TouchableOpacity>
               <View style={styles.smallnavbar}>
                 {
-                  this.state.step > 1
+                  this.state.stepCounter > 1 && this.state.stepProgress[0] !== 0
                   ?
                   <TouchableOpacity style={styles.smallnavbuttonleft} onPress={() => this.pageLeft()}>
                     <Image style={styles.smallnavbuttonimage} source={require('./assets/previous_icon.png')}/>
@@ -592,7 +704,7 @@ export default class Recipe extends Component {
                   null
                 }
                 {
-                  this.state.step < this.props.recipe.steps[0].length
+                  this.state.stepCounter < this.props.totalSteps
                   ?
                   <TouchableOpacity style={styles.smallnavbuttonright} onPress={() => this.pageRight()}>
                     <Image style={styles.smallnavbuttonimage} source={require('./assets/next_icon.png')}/>
@@ -604,19 +716,24 @@ export default class Recipe extends Component {
 
               <InstructionCard
                 recipe={this.props.recipe}
-                pic={this.props.recipe.steps[0][this.state.step - 1].img}
-                time={this.props.recipe.steps[0][this.state.step - 1].time}
-                instruction={this.props.recipe.steps[0][this.state.step - 1].instruction}
-                ingredients={this.props.recipe.steps[0][this.state.step - 1].ingredients}
-                step={this.state.step}
-                totalSteps={this.props.recipe.steps[0].length}
-                handleTimer={this.handleTimer}
-                speak={this.speak}
-                pageLeft={this.pageLeft}
-                pageRight={this.pageRight}
+
+                currentStepThread={this.state.currentStepThread}
                 numStepThreads={this.state.numStepThreads}
                 stepProgress={this.state.stepProgress}
-                currentStepThread={this.state.currentStepThread}
+                totalSteps={this.props.totalSteps}
+                stepCounter={this.state.stepCounter}
+
+                img={this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].img}
+                time={this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].time}
+                instruction={this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].instruction}
+                ingredients={this.props.recipe.steps[this.state.currentStepThread][this.state.stepProgress[this.state.currentStepThread]].ingredients}
+
+                speak={this.speak}
+                handleTimer={this.handleTimer}
+                pageLeft={this.pageLeft}
+                pageRight={this.pageRight}
+                multitaskLeft={this.multitaskLeft}
+                multitaskRight={this.multitaskRight}
               />
 
             </Animated.View>
@@ -675,12 +792,12 @@ const styles = StyleSheet.create({
   smallnavbuttonleft: {
     position: 'absolute',
     left: 15,
-    top: 80,
+    top: 100,
   },
   smallnavbuttonright: {
     position: 'absolute',
     left: width-50,
-    top: 80,
+    top: 100,
   },
   smallnavbuttonimage: {
     borderRadius: 10,
