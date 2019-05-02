@@ -412,8 +412,11 @@ export default class Recipe extends Component {
 
   // Function handleTimer: called when timers end in InstructionCard
   handleTimer = (step) => {
+    let updatedStepProgress = this.state.stepProgress.slice();
+    updatedStepProgress[0] += 1;
     this.setState({
-      stepCounter: step + 1
+      stepCounter: step + 1,
+      stepProgress: updatedStepProgress
     }, () => {
       Voice.start('en-US');
       this.speak(this.props.recipe.steps[0][step].instruction);

@@ -89,7 +89,7 @@ export default class InstructionCard extends Component {
   getTimeNotice(t) {
     let seconds = this.getTime(t);
     if (seconds < 120) {
-      return 10;
+      return seconds-10;
     }
     else {
       return seconds-60;
@@ -331,25 +331,7 @@ export default class InstructionCard extends Component {
               {
                 (this.props.recipe.steps[this.props.currentStepThread+1][this.props.stepProgress[this.props.currentStepThread+1]].time)
                 ?
-                <View>
-                  <CountDown
-                    until={this.getTimeNotice(this.props.recipe.steps[this.props.currentStepThread+1][this.props.stepProgress[this.props.currentStepThread+1]].time)}
-                    onFinish={() => this.props.speak("Get ready.")}
-                    size={0}
-                    timeToShow={[]}
-                    timeLabels={{}}
-                  />
-                  <CountDown
-                    style={styles.timer}
-                    until={this.getTime(this.props.recipe.steps[this.props.currentStepThread+1][this.props.stepProgress[this.props.currentStepThread+1]].time)}
-                    onFinish={() => this.props.handleTimer(this.props.stepCounter)}
-                    size={35}
-                    digitStyle={{backgroundColor: '#000'}}
-                    digitTxtStyle={{color: '#FFF'}}
-                    timeToShow={['M', 'S']}
-                    timeLabels={{m: 'MM', s: 'SS'}}
-                  />
-                </View>
+                null
                 :
                 <Image key={this.props.stepCounter} style={styles.smallImage} source={{ uri: this.props.recipe.steps[this.props.currentStepThread+1][this.props.stepProgress[this.props.currentStepThread+1]].img }} />
               }
